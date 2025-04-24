@@ -1,1 +1,43 @@
-spring.application.name=BikeTrack
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/biketrack
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: localhost
+    port: 1025
+    username: mail-dev
+    password: mail-dev
+    properties:
+      mail:
+        smtp:
+          trust: "*"
+        auth: true
+        starttls:
+          enabled: true
+        connectiontimeout: 5000
+        timeout: 3000
+        writetimeout: 5000
+  servlet:
+    multipart:
+      max-file-size: 50MB
+application:
+  frontend:
+    base-url: http://localhost:4200
+    activation-url: ${application.frontend.base-url}/activate-account
+  security:
+    jwt:
+      secret-key: ZXMKQBBFCLH0ZPAHWN4YGVEGER5NUKD7FGD2321SADA213123DASDGFGFDGBNHJHGE
+      access-token-expiration: PT30M # 30 minutes
+      refresh-token-expiration: P1D  # 1 day
+  mailing:
+    is-enabled: true
+  file:
+    upload:
+      photos-output-path: ./uploads
