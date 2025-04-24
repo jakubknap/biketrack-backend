@@ -1,14 +1,22 @@
+server:
+  port: 8088
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/biketrack
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/biketrack
+    username: postgres
+    password: postgres
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    table: flyway_schema_history
+  servlet:
+    multipart:
+      max-file-size: 50MB
   mail:
     host: localhost
     port: 1025
@@ -24,9 +32,7 @@ spring:
         connectiontimeout: 5000
         timeout: 3000
         writetimeout: 5000
-  servlet:
-    multipart:
-      max-file-size: 50MB
+
 application:
   frontend:
     base-url: http://localhost:4200
