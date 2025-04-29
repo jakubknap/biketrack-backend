@@ -1,7 +1,7 @@
-package pl.biketrack.base.controller.advice;
+package pl.biketrack.exception.dto.response;
 
 import lombok.Getter;
-import pl.biketrack.base.enumerated.ResponseCode;
+import pl.biketrack.common.enumerated.ResponseCode;
 
 @Getter
 public class BaseValidationResponse<T> extends BaseResponse {

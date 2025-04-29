@@ -1,7 +1,7 @@
-package pl.biketrack.base.exception;
+package pl.biketrack.exception.exception;
 
 import lombok.Getter;
-import pl.biketrack.base.enumerated.ResponseCode;
+import pl.biketrack.common.enumerated.ResponseCode;
 
 @Getter
 public class ServiceException extends RuntimeException {

@@ -1,4 +1,4 @@
-package pl.biketrack.base.controller.advice;
+package pl.biketrack.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -8,15 +8,18 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import pl.biketrack.base.exception.CustomValidationException;
-import pl.biketrack.base.exception.ServiceException;
+import pl.biketrack.exception.dto.BaseApiValidationError;
+import pl.biketrack.exception.dto.response.BaseResponse;
+import pl.biketrack.exception.dto.response.BaseValidationResponse;
+import pl.biketrack.exception.exception.CustomValidationException;
+import pl.biketrack.exception.exception.ServiceException;
 
 import java.util.List;
 
-import static pl.biketrack.base.controller.advice.BaseValidationErrorMapper.mapBindingResult;
-import static pl.biketrack.base.controller.advice.BaseValidationErrorMapper.mapCustomValidationErrors;
-import static pl.biketrack.base.enumerated.ResponseCode.E00000;
-import static pl.biketrack.base.enumerated.ResponseCode.E00005;
+import static pl.biketrack.common.enumerated.ResponseCode.E00000;
+import static pl.biketrack.common.enumerated.ResponseCode.E00005;
+import static pl.biketrack.exception.mapper.BaseValidationErrorMapper.mapBindingResult;
+import static pl.biketrack.exception.mapper.BaseValidationErrorMapper.mapCustomValidationErrors;
 
 @Slf4j
 @RestControllerAdvice

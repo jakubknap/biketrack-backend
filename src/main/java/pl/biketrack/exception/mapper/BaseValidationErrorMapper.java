@@ -1,9 +1,10 @@
-package pl.biketrack.base.controller.advice;
+package pl.biketrack.exception.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import pl.biketrack.exception.dto.BaseApiValidationError;
 
 import java.util.List;
 

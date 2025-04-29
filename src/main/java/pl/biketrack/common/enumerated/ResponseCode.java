@@ -1,4 +1,4 @@
-package pl.biketrack.base.enumerated;
+package pl.biketrack.common.enumerated;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,9 @@ public enum ResponseCode {
 
     // USER ERRORS
     E01000("User not found", NOT_FOUND),
-    E01001("User already exists", CONFLICT);
+    E01001("User already exists", CONFLICT),
+    E01002("No authenticated user found", INTERNAL_SERVER_ERROR),
+    E01003("Principal is not instance of User", INTERNAL_SERVER_ERROR);
 
     private final String message;
     private final HttpStatus httpStatus;

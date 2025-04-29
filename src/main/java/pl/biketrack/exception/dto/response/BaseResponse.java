@@ -1,11 +1,11 @@
-package pl.biketrack.base.controller.advice;
+package pl.biketrack.exception.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import pl.biketrack.base.enumerated.ResponseCode;
+import pl.biketrack.common.enumerated.ResponseCode;
 
 import java.util.UUID;
 

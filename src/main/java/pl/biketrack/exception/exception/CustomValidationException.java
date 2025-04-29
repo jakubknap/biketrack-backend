@@ -1,8 +1,8 @@
-package pl.biketrack.base.exception;
+package pl.biketrack.exception.exception;
 
 import lombok.Getter;
-import pl.biketrack.base.controller.advice.BaseApiValidationError;
-import pl.biketrack.base.enumerated.ResponseCode;
+import pl.biketrack.common.enumerated.ResponseCode;
+import pl.biketrack.exception.dto.BaseApiValidationError;
 
 import java.util.List;
 
