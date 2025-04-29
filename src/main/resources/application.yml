@@ -32,6 +32,10 @@ spring:
         connectiontimeout: 5000
         timeout: 3000
         writetimeout: 5000
+  banner:
+    location: banner/banner.txt
+  application:
+    name: biketrack
 
 application:
   frontend:
@@ -40,8 +44,8 @@ application:
   security:
     jwt:
       secret-key: ZXMKQBBFCLH0ZPAHWN4YGVEGER5NUKD7FGD2321SADA213123DASDGFGFDGBNHJHGE
-      access-token-expiration: PT30M # 30 minutes
-      refresh-token-expiration: P1D  # 1 day
+      access-token-expiration: 30m # 30 minutes
+      refresh-token-expiration: 1d  # 1 day
   mailing:
     is-enabled: true
   file:
