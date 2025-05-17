@@ -28,7 +28,7 @@ public class BaseValidationErrorMapper {
     }
 
     private static BaseApiValidationError mapToApiValidationError(ObjectError error) {
-        String defaultMessage = error.getDefaultMessage();
+        final String defaultMessage = error.getDefaultMessage();
 
         String field = FIELD;
 

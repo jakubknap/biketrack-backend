@@ -1,5 +1,6 @@
 package pl.biketrack.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +18,7 @@ import pl.biketrack.auditing.ApplicationAuditAware;
 import pl.biketrack.exception.exception.ServiceException;
 import pl.biketrack.user.repository.UserRepository;
 
-import static pl.biketrack.common.enumerated.ResponseCode.E01000;
+import static pl.biketrack.common.enumerated.ResponseCode.E03000;
 import static pl.biketrack.util.MaskingUtil.maskEmail;
 
 @Slf4j
@@ -33,7 +34,7 @@ public class ApplicationConfig {
         return username -> userRepository.findByEmail(username)
                                          .orElseThrow(() -> {
                                              log.error("User with email: {} not found", maskEmail(username));
-                                             return new ServiceException(E01000);
+                                             return new ServiceException(E03000);
                                          });
     }
 
@@ -58,5 +59,10 @@ public class ApplicationConfig {
     @Bean
     public AuditorAware<Long> auditorAware() {
         return new ApplicationAuditAware();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }

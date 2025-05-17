@@ -1,26 +1,17 @@
 package pl.biketrack.auditing;
 
 import org.springframework.data.domain.AuditorAware;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import pl.biketrack.security.util.SecurityUtils;
 import pl.biketrack.user.model.User;
 
 import java.util.Optional;
 
-import static java.util.Objects.isNull;
+import static pl.biketrack.security.util.SecurityUtils.getLoggedUser;
 
 public class ApplicationAuditAware implements AuditorAware<Long> {
 
     @Override
     public Optional<Long> getCurrentAuditor() {
-        Authentication authentication = SecurityUtils.getAuthentication();
-
-        if (isNull(authentication) || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
-            return Optional.empty();
-        }
-
-        User user = (User) authentication.getPrincipal();
+        User user = getLoggedUser();
         return Optional.ofNullable(user.getId());
     }
 }

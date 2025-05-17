@@ -25,12 +25,12 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 public class Token extends DateAuditEntity {
 
+    @Column(nullable = false, unique = true)
+    private String token;
+
     @Enumerated(STRING)
     @Column(nullable = false)
     private TokenType tokenType;
-
-    @Column(nullable = false, unique = true)
-    private String token;
 
     @Column(nullable = false)
     private boolean revoked;

@@ -31,6 +31,20 @@ import static jakarta.persistence.EnumType.STRING;
 @Table(name = "_user")
 public class User extends DateAuditEntity implements UserDetails {
 
+    private static final String ROLE_PREFIX = "ROLE_";
+
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID uuid;
+
+    @Column(nullable = false, unique = true)
+    private String nickname;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
     @Enumerated(STRING)
     @Column(nullable = false)
     private UserStatus status;
@@ -39,24 +53,9 @@ public class User extends DateAuditEntity implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
-    @Column(nullable = false, unique = true, updatable = false)
-    private UUID uuid;
-
-    @Column(nullable = false)
-    private String firstname;
-
-    @Column(nullable = false)
-    private String lastname;
-
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        return List.of(new SimpleGrantedAuthority(ROLE_PREFIX + role.name()));
     }
 
     @Override
@@ -65,18 +64,8 @@ public class User extends DateAuditEntity implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
     public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
+        return status.isBlocked();
     }
 
     @Override

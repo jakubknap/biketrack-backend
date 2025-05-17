@@ -1,6 +1,8 @@
 package pl.biketrack.security.util;
 
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.biketrack.exception.exception.ServiceException;
@@ -9,26 +11,33 @@ import pl.biketrack.user.model.User;
 import java.util.UUID;
 
 import static java.util.Objects.isNull;
-import static pl.biketrack.common.enumerated.ResponseCode.E01002;
-import static pl.biketrack.common.enumerated.ResponseCode.E01003;
+import static pl.biketrack.common.enumerated.ResponseCode.E00006;
 
+@Slf4j
 @UtilityClass
 public class SecurityUtils {
 
     public static User getLoggedUser() {
-        Authentication authentication = getAuthentication();
+        final Authentication authentication = getAuthentication();
 
-        if (isNull(authentication) || !authentication.isAuthenticated()) {
-            throw new ServiceException(E01002);
+        if (isNull(authentication) || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            log.error("No authenticated user found");
+            throw new ServiceException(E00006);
         }
 
-        Object principal = authentication.getPrincipal();
+        final Object principal = authentication.getPrincipal();
+
+        if (isNull(principal)) {
+            log.error("Authentication principal is null");
+            throw new ServiceException(E00006);
+        }
 
         if (principal instanceof User) {
             return (User) principal;
         }
 
-        throw new ServiceException(E01003);
+        log.error("Principal is not instance of User");
+        throw new ServiceException(E00006);
     }
 
     public static Authentication getAuthentication() {

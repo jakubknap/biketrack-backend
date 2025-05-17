@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import pl.biketrack.common.entity.BaseEntity;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 @Getter
 @MappedSuperclass
@@ -18,9 +18,9 @@ public abstract class DateAuditEntity extends BaseEntity {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private ZonedDateTime createdDate;
+    private LocalDateTime createdDate;
 
     @LastModifiedDate
     @Column(insertable = false)
-    private ZonedDateTime lastModifiedDate;
+    private LocalDateTime lastModifiedDate;
 }

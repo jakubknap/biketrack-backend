@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -12,36 +13,42 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 @Getter
 @RequiredArgsConstructor
 public enum ResponseCode {
 
     // GLOBAL SUCCESSES
-    S00000(Constants.SUCCESS, OK),
-    S00001(Constants.SUCCESS, NO_CONTENT),
+    S00000("Success", OK),
+    S00001("Success", NO_CONTENT),
+    S00002("Success", ACCEPTED),
 
     // GLOBAL ERRORS
     E00000("Bad Request", BAD_REQUEST),
     E00001("Forbidden", FORBIDDEN),
     E00002("Not found", NOT_FOUND),
     E00003("Unauthorized", UNAUTHORIZED),
-    E00004(Constants.INVALID_FORMAT_JSON, UNPROCESSABLE_ENTITY),
-    E00005(Constants.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR),
+    E00004("Invalid request format", BAD_REQUEST),
+    E00005("Invalid request", BAD_REQUEST),
+    E00006("Internal server error", INTERNAL_SERVER_ERROR),
+
+    // JWT TOKEN ERRORS
+    E01000("Missing token", UNAUTHORIZED),
+    E01001("Expired token", UNAUTHORIZED),
+    E01002("Invalid token", UNAUTHORIZED),
+    E01003("Token not found", UNAUTHORIZED),
+
+    // AUTHENTICATION ERRORS
+    E02000("Incorrect email or password", UNAUTHORIZED),
+    E02001("Account is inactive", UNAUTHORIZED),
+    E02002("Account is blocked", UNAUTHORIZED),
+    E02003("Account expired", UNAUTHORIZED),
+    E02004("User password expired", UNAUTHORIZED),
 
     // USER ERRORS
-    E01000("User not found", NOT_FOUND),
-    E01001("User already exists", CONFLICT),
-    E01002("No authenticated user found", INTERNAL_SERVER_ERROR),
-    E01003("Principal is not instance of User", INTERNAL_SERVER_ERROR);
+    E03000("User already exists", CONFLICT),
+    E03001("User not found", NOT_FOUND);
 
     private final String message;
     private final HttpStatus httpStatus;
-
-    private static class Constants {
-        public static final String SUCCESS = "Success";
-        public static final String INVALID_FORMAT_JSON = "Invalid format JSON";
-        public static final String INTERNAL_SERVER_ERROR = "Internal server error";
-    }
 }

@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
-import pl.biketrack.token.model.Token;
 import pl.biketrack.token.repository.TokenRepository;
 
 import java.util.UUID;
@@ -27,23 +26,19 @@ public class LogoutService implements LogoutHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         log.info("Logout process started");
 
-        final String jwt = jwtService.readJwtFromHeader(request);
+        final String jwt = jwtService.readTokenFromHeader(request);
 
         if (isNull(jwt)) {
             log.info("No authorization header or invalid authorization header. Logout skipped");
             return;
         }
 
-        Token token = tokenRepository.findByTokenWithUser(jwt)
-                                     .orElse(null);
+        UUID userUuid = tokenRepository.findUserUuidByToken(jwt);
 
-        if (isNull(token)) {
-            log.info("Token not found in database. Logout skipped");
+        if (isNull(userUuid)) {
+            log.info("No user assigned to this token found. Logout skipped");
             return;
         }
-
-        UUID userUuid = token.getUser()
-                             .getUuid();
 
         jwtService.revokeAllUserTokens(userUuid);
         SecurityContextHolder.clearContext();
