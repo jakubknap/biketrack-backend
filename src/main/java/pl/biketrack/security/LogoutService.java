@@ -43,6 +43,6 @@ public class LogoutService implements LogoutHandler {
         jwtService.revokeAllUserTokens(userUuid);
         SecurityContextHolder.clearContext();
 
-        log.info("Logout successful for user with uuid: {}", userUuid);
+        log.info("Logout successful for user with UUID: [{}]", userUuid);
     }
 }

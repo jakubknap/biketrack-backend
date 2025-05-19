@@ -10,6 +10,10 @@ public enum UserStatus {
         return ACTIVE == this;
     }
 
+    public boolean isNotActive() {
+        return !isActive();
+    }
+
     public boolean isBlocked() {
         return BLOCKED == this;
     }

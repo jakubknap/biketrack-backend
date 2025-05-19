@@ -28,6 +28,7 @@ import pl.biketrack.token.repository.TokenRepository;
 import pl.biketrack.user.mapper.UserMapper;
 import pl.biketrack.user.model.User;
 import pl.biketrack.user.repository.UserRepository;
+import pl.biketrack.user.service.UserService;
 import pl.biketrack.util.MaskingUtil;
 
 import java.util.List;
@@ -40,8 +41,8 @@ import static pl.biketrack.common.enumerated.ResponseCode.E02003;
 import static pl.biketrack.common.enumerated.ResponseCode.E02004;
 import static pl.biketrack.common.enumerated.ResponseCode.E03000;
 import static pl.biketrack.common.enumerated.ResponseCode.E03001;
+import static pl.biketrack.common.enumerated.ResponseCode.E03002;
 import static pl.biketrack.common.enumerated.ResponseCode.S00002;
-import static pl.biketrack.util.MaskingUtil.maskEmail;
 
 @Slf4j
 @Service
@@ -50,6 +51,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserService userService;
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
     private final AuthenticationManager authenticationManager;
@@ -58,15 +60,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public BaseResponse register(RegisterRequest request) {
         String email = request.email();
 
-        if (userRepository.existsByEmail(email)) {
-            log.error("User with email: {} already exists", MaskingUtil.maskEmail(email));
+        if (userRepository.existsByEmailOrNickname(email, request.nickname())) {
+            log.error("User with this e-mail or nickname already exists");
             throw new ServiceException(E03000);
         }
 
         User user = userMapper.mapToUserEntity(request);
         userRepository.save(user);
 
-        log.info("User with email: {} has been successfully registered. Assigned UUID: {}", MaskingUtil.maskEmail(email), user.getUuid());
+        log.info("User with e-mail: [{}] has been successfully registered. Assigned UUID: {}", MaskingUtil.maskEmail(email), user.getUuid());
         return new BaseResponse(S00002);
     }
 
@@ -75,7 +77,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponse authenticate(LoginRequest request) {
         User user = tryAuthenticateUser(request);
         TokenPairDto generatedTokens = generateTokens(user);
-        log.info("Successfully authenticated user with email: {}", MaskingUtil.maskEmail(request.email()));
+        log.info("Successfully authenticated user with e-mail: [{}]", MaskingUtil.maskEmail(request.email()));
         return new AuthenticationResponse(generatedTokens.accessToken(), generatedTokens.refreshToken());
     }
 
@@ -93,19 +95,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Token accessToken = TokenMapper.buildToken(user, jwtService.generateAccessToken(userEmail), TokenType.ACCESS_TOKEN);
         tokenRepository.save(accessToken);
 
-        log.info("Successfully refreshed token for user with email: {}", MaskingUtil.maskEmail(userEmail));
+        log.info("Successfully refreshed access token for user with e-mail: [{}]", MaskingUtil.maskEmail(userEmail));
         return new AuthenticationResponse(accessToken.getToken(), refreshToken);
     }
 
     private User tryAuthenticateUser(LoginRequest request) {
+        String email = request.email();
+        User user = userService.getUser(email);
+
+        if (user.getStatus().isNotActive()) {
+            log.error("User with UUID: [{}] does not have an active account. Cannot authenticate", user.getUuid());
+            throw new ServiceException(E03002);
+        }
+
         try {
-            String email = request.email();
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, request.password()));
-            return userRepository.findByEmail(email)
-                                 .orElseThrow(() -> {
-                                     log.error("User with email: {} not found", maskEmail(email));
-                                     return new ServiceException(E03000);
-                                 });
         } catch (BadCredentialsException ex) {
             log.error("Bad credentials: {}", ex.getMessage(), ex);
             throw new ServiceException(E02000);
@@ -134,6 +138,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             log.error("Unexpected error during authentication: {}", ex.getMessage(), ex);
             throw new ServiceException(E00006);
         }
+
+        return user;
     }
 
     private TokenPairDto generateTokens(User user) {
@@ -150,11 +156,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private User extractUserFromRefreshToken(String refreshToken) {
         String userEmail = jwtService.extractUsernameFromToken(refreshToken);
-
-        return userRepository.findByEmail(userEmail)
-                             .orElseThrow(() -> {
-                                 log.error("User with email: {} from token not found", MaskingUtil.maskEmail(userEmail));
-                                 return new ServiceException(E03001);
-                             });
+        return userService.getUser(userEmail);
     }
 }

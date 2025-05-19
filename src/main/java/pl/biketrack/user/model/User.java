@@ -65,7 +65,7 @@ public class User extends DateAuditEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return status.isBlocked();
+        return !status.isBlocked();
     }
 
     @Override

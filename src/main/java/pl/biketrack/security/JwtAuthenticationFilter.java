@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static pl.biketrack.common.constant.Urls.AUTH_URL;
 
 @Slf4j
 @Component
@@ -39,6 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+        if (request.getServletPath().contains(AUTH_URL)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String token = jwtService.readTokenFromHeader(request);
 
         if (isNull(token)) {

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import static pl.biketrack.common.constant.Patterns.PASSWORD_PATTERN;
+
 public record LoginRequest(
 
         @Email
@@ -13,6 +15,6 @@ public record LoginRequest(
 
         @NotBlank
         @Size(min = 8, max = 100)
-        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&.\\-_])[A-Za-z\\d@$!%*?&.\\-_]{8,}$")
+        @Pattern(regexp = PASSWORD_PATTERN)
         String password
 ) {}

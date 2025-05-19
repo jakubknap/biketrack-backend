@@ -74,12 +74,12 @@ public class JwtService {
     }
 
     public void revokeAllUserTokens(UUID userUuid) {
-        log.info("Revoking all valid tokens for user with uuid: {}", userUuid);
+        log.info("Revoking all valid tokens for user with UUID: [{}]", userUuid);
         tokenRepository.revokeAllValidTokensByUserUuid(userUuid, List.of(ACCESS_TOKEN, REFRESH_TOKEN));
     }
 
     public void revokeAllUserTokensByType(UUID userUuid, TokenType tokenType) {
-        log.info("Revoking all valid {}S for user with uuid: {}", tokenType, userUuid);
+        log.info("Revoking all valid {}S for user with UUID: [{}]", tokenType, userUuid);
         tokenRepository.revokeAllValidTokensByUserUuid(userUuid, List.of(tokenType));
     }
 
@@ -173,7 +173,7 @@ public class JwtService {
 
         final TokenType tokenType = tokenStatusAndType.tokenType();
         if (expectedType != tokenType) {
-            log.error("Token type is invalid for this operation. Expected token type is: {}, provided: {}", expectedType, tokenType);
+            log.error("Token type is invalid for this operation. Expected token type is: [{}], provided: [{}]", expectedType, tokenType);
             throw new ServiceException(E01002);
         }
     }

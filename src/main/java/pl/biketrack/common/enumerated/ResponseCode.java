@@ -13,6 +13,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 @Getter
 @RequiredArgsConstructor
@@ -39,7 +40,7 @@ public enum ResponseCode {
     E01003("Token not found", UNAUTHORIZED),
 
     // AUTHENTICATION ERRORS
-    E02000("Incorrect email or password", UNAUTHORIZED),
+    E02000("Incorrect e-mail or password", UNAUTHORIZED),
     E02001("Account is inactive", UNAUTHORIZED),
     E02002("Account is blocked", UNAUTHORIZED),
     E02003("Account expired", UNAUTHORIZED),
@@ -47,7 +48,8 @@ public enum ResponseCode {
 
     // USER ERRORS
     E03000("User already exists", CONFLICT),
-    E03001("User not found", NOT_FOUND);
+    E03001("User not found", NOT_FOUND),
+    E03002("User does not have an active account", UNPROCESSABLE_ENTITY);
 
     private final String message;
     private final HttpStatus httpStatus;

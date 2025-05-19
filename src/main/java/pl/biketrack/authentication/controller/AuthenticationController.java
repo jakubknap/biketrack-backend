@@ -15,9 +15,11 @@ import pl.biketrack.authentication.service.AuthenticationService;
 import pl.biketrack.exception.dto.response.BaseResponse;
 import pl.biketrack.util.MaskingUtil;
 
+import static pl.biketrack.common.constant.Urls.AUTH_URL;
+
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping(AUTH_URL)
 @RequiredArgsConstructor
 public class AuthenticationController {
 
@@ -25,13 +27,13 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public BaseResponse register(@Valid @RequestBody RegisterRequest request) {
-        log.info("Start user registration with email: {}", MaskingUtil.maskEmail(request.email()));
+        log.info("Start user registration with e-mail: [{}]", MaskingUtil.maskEmail(request.email()));
         return authenticationService.register(request);
     }
 
     @PostMapping("/authenticate")
     public AuthenticationResponse authenticate(@Valid @RequestBody LoginRequest request) {
-        log.info("Start user authentication with email: {}", MaskingUtil.maskEmail(request.email()));
+        log.info("Start user authentication with e-mail: [{}]", MaskingUtil.maskEmail(request.email()));
         return authenticationService.authenticate(request);
     }
 
