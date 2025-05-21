@@ -101,7 +101,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private User tryAuthenticateUser(LoginRequest request) {
         String email = request.email();
-        User user = userService.getUser(email);
+        User user = userService.getUserByEmail(email);
 
         if (user.getStatus().isNotActive()) {
             log.error("User with UUID: [{}] does not have an active account. Cannot authenticate", user.getUuid());
@@ -156,6 +156,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private User extractUserFromRefreshToken(String refreshToken) {
         String userEmail = jwtService.extractUsernameFromToken(refreshToken);
-        return userService.getUser(userEmail);
+        return userService.getUserByEmail(userEmail);
     }
 }

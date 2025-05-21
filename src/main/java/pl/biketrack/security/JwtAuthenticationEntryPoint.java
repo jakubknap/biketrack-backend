@@ -12,6 +12,8 @@ import pl.biketrack.exception.dto.response.BaseResponse;
 
 import java.io.IOException;
 
+import static pl.biketrack.common.enumerated.ResponseCode.E01000;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -20,9 +22,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-
-        objectMapper.writeValue(response.getOutputStream(), new BaseResponse(ResponseCode.E01000));
+        final ResponseCode responseCode = E01000;
+        response.setStatus(responseCode.getHttpStatus().value());
+        objectMapper.writeValue(response.getOutputStream(), new BaseResponse(responseCode));
     }
 }

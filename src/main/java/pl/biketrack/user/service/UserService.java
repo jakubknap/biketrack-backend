@@ -4,5 +4,5 @@ import pl.biketrack.user.model.User;
 
 public interface UserService {
 
-    User getUser(String email);
+    User getUserByEmail(String email);
 }
