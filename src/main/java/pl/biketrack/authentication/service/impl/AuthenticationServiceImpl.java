@@ -19,19 +19,26 @@ import pl.biketrack.authentication.dto.response.AuthenticationResponse;
 import pl.biketrack.authentication.service.AuthenticationService;
 import pl.biketrack.exception.dto.response.BaseResponse;
 import pl.biketrack.exception.exception.ServiceException;
+import pl.biketrack.mail.impl.AccountActivationMail;
+import pl.biketrack.mail.service.MailService;
+import pl.biketrack.properties.FrontendProperties;
 import pl.biketrack.security.JwtService;
 import pl.biketrack.token.dto.TokenPairDto;
 import pl.biketrack.token.enumerated.TokenType;
 import pl.biketrack.token.mapper.TokenMapper;
 import pl.biketrack.token.model.Token;
 import pl.biketrack.token.repository.TokenRepository;
+import pl.biketrack.token.service.TokenServiceFactory;
+import pl.biketrack.user.enumerated.UserStatus;
 import pl.biketrack.user.mapper.UserMapper;
 import pl.biketrack.user.model.User;
 import pl.biketrack.user.repository.UserRepository;
 import pl.biketrack.user.service.UserService;
 import pl.biketrack.util.MaskingUtil;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static pl.biketrack.common.enumerated.ResponseCode.E00006;
 import static pl.biketrack.common.enumerated.ResponseCode.E02000;
@@ -42,6 +49,8 @@ import static pl.biketrack.common.enumerated.ResponseCode.E02004;
 import static pl.biketrack.common.enumerated.ResponseCode.E03000;
 import static pl.biketrack.common.enumerated.ResponseCode.E03001;
 import static pl.biketrack.common.enumerated.ResponseCode.E03002;
+import static pl.biketrack.common.enumerated.ResponseCode.E03003;
+import static pl.biketrack.common.enumerated.ResponseCode.S00000;
 import static pl.biketrack.common.enumerated.ResponseCode.S00002;
 
 @Slf4j
@@ -55,8 +64,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
     private final AuthenticationManager authenticationManager;
+    private final TokenMapper tokenMapper;
+    private final TokenServiceFactory tokenServiceFactory;
+    private final MailService mailService;
+    private final FrontendProperties frontendProperties;
 
     @Override
+    @Transactional
     public BaseResponse register(RegisterRequest request) {
         String email = request.email();
 
@@ -68,8 +82,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = userMapper.mapToUserEntity(request);
         userRepository.save(user);
 
+        sendActivationLink(user);
         log.info("User with e-mail: [{}] has been successfully registered. Assigned UUID: {}", MaskingUtil.maskEmail(email), user.getUuid());
         return new BaseResponse(S00002);
+    }
+
+    @Override
+    @Transactional
+    public BaseResponse activateAccount(UUID token) {
+        Token tokenEntity = tokenServiceFactory.getTokenService(TokenType.ACCOUNT_ACTIVATION_TOKEN)
+                                               .getAndValidateToken(token.toString());
+        activateUser(tokenEntity);
+        return new BaseResponse(S00000);
     }
 
     @Override
@@ -92,11 +116,38 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         jwtService.validateToken(refreshToken, userEmail, TokenType.REFRESH_TOKEN);
         jwtService.revokeAllUserTokensByType(user.getUuid(), TokenType.ACCESS_TOKEN);
 
-        Token accessToken = TokenMapper.buildToken(user, jwtService.generateAccessToken(userEmail), TokenType.ACCESS_TOKEN);
+        Token accessToken = tokenMapper.buildJwtToken(user, jwtService.generateAccessToken(userEmail), TokenType.ACCESS_TOKEN);
         tokenRepository.save(accessToken);
 
         log.info("Successfully refreshed access token for user with e-mail: [{}]", MaskingUtil.maskEmail(userEmail));
         return new AuthenticationResponse(accessToken.getToken(), refreshToken);
+    }
+
+    private void sendActivationLink(User user) {
+        String activationToken = tokenServiceFactory.getTokenService(TokenType.ACCOUNT_ACTIVATION_TOKEN)
+                                                    .generateToken(user);
+        mailService.sendMailAsync(new AccountActivationMail(user.getEmail(), user.getNickname(), frontendProperties.prepareActivationLink(activationToken)));
+    }
+
+    private void activateUser(Token tokenEntity) {
+        User user = tokenEntity.getUser();
+
+        validateUserStatus(user);
+
+        user.setStatus(UserStatus.ACTIVE);
+        userRepository.save(user);
+
+        tokenEntity.setUsedAt(LocalDateTime.now());
+        tokenRepository.save(tokenEntity);
+
+        log.info("Successfully activated user with e-mail: [{}]", user.getEmail());
+    }
+
+    private void validateUserStatus(User user) {
+        if (UserStatus.REGISTERED != user.getStatus()) {
+            log.error("The user with UUID: [{}] has already been activated before. Re-verification is not possible.", user.getUuid());
+            throw new ServiceException(E03003);
+        }
     }
 
     private User tryAuthenticateUser(LoginRequest request) {
@@ -147,8 +198,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         jwtService.revokeAllUserTokens(user.getUuid());
 
-        Token accessToken = TokenMapper.buildToken(user, jwtService.generateAccessToken(email), TokenType.ACCESS_TOKEN);
-        Token refreshToken = TokenMapper.buildToken(user, jwtService.generateRefreshToken(email), TokenType.REFRESH_TOKEN);
+        Token accessToken = tokenMapper.buildJwtToken(user, jwtService.generateAccessToken(email), TokenType.ACCESS_TOKEN);
+        Token refreshToken = tokenMapper.buildJwtToken(user, jwtService.generateRefreshToken(email), TokenType.REFRESH_TOKEN);
 
         tokenRepository.saveAll(List.of(accessToken, refreshToken));
         return new TokenPairDto(accessToken.getToken(), refreshToken.getToken());

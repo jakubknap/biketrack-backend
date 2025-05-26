@@ -142,14 +142,12 @@ public class JwtService {
     }
 
     private void validateTokenExpiration(String token) {
-        if (isTokenExpired(token)) {
+        boolean isTokenExpired = extractExpiration(token).before(getDate(OFFSET_NOW));
+
+        if (isTokenExpired) {
             log.error("Token expired");
             throw new ServiceException(E01001);
         }
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(getDate(OFFSET_NOW));
     }
 
     private Date extractExpiration(String token) {
@@ -164,7 +162,7 @@ public class JwtService {
     }
 
     private void validateTokenStatusAndExpectedType(String token, TokenType expectedType) {
-        final TokenStatusAndType tokenStatusAndType = getTokenStatusAndType(token);
+        final TokenStatusAndType tokenStatusAndType = getTokenStatusAndTypeOrElseThrow(token);
 
         if (tokenStatusAndType.isRevoked()) {
             log.error("Token is revoked");
@@ -178,7 +176,7 @@ public class JwtService {
         }
     }
 
-    private TokenStatusAndType getTokenStatusAndType(String token) {
+    private TokenStatusAndType getTokenStatusAndTypeOrElseThrow(String token) {
         return tokenRepository.getTokenStatusAndType(token)
                               .orElseThrow(() -> {
                                   log.error("Token not found");

@@ -44,12 +44,20 @@ public enum ResponseCode {
     E02001("Account is inactive", UNAUTHORIZED),
     E02002("Account is blocked", UNAUTHORIZED),
     E02003("Account expired", UNAUTHORIZED),
-    E02004("User password expired", UNAUTHORIZED),
+    E02004("Account password expired", UNAUTHORIZED),
 
     // USER ERRORS
     E03000("User already exists", CONFLICT),
     E03001("User not found", NOT_FOUND),
-    E03002("User does not have an active account", UNPROCESSABLE_ENTITY);
+    E03002("User does not have an active account", UNPROCESSABLE_ENTITY),
+    E03003("User already had the account activated", UNPROCESSABLE_ENTITY),
+
+    // TOKEN ERRORS
+    E04000("Token not found", NOT_FOUND),
+    E04001("Expired token", BAD_REQUEST),
+    E04002("Revoked token", BAD_REQUEST),
+    E04003("Invalid token", BAD_REQUEST),
+    E04004("Token used", BAD_REQUEST);
 
     private final String message;
     private final HttpStatus httpStatus;

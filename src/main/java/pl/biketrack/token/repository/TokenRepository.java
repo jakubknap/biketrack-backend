@@ -39,4 +39,12 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
             WHERE t.token = :token
             """)
     Optional<UUID> findUserUuidByToken(String token);
+
+    @Query("""
+            SELECT t
+            FROM Token t
+                     INNER JOIN User u ON t.user.id = u.id
+            WHERE t.token = :token
+            """)
+    Optional<Token> findTokenWithUserByToken(String token);
 }

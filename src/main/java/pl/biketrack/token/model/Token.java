@@ -14,6 +14,8 @@ import pl.biketrack.common.entity.auditable.DateAuditEntity;
 import pl.biketrack.token.enumerated.TokenType;
 import pl.biketrack.user.model.User;
 
+import java.time.LocalDateTime;
+
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -34,6 +36,12 @@ public class Token extends DateAuditEntity {
 
     @Column(nullable = false)
     private boolean revoked;
+
+    // The following 2 fields apply only to account management tokens, not to token authorization - JWT
+    @Column(updatable = false)
+    private LocalDateTime expiresAt;
+
+    private LocalDateTime usedAt;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id", nullable = false)

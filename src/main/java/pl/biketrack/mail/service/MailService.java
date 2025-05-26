@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -15,6 +14,7 @@ import pl.biketrack.util.MaskingUtil;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
@@ -30,12 +30,18 @@ public class MailService {
     private final MailProperties mailProperties;
     private final TemplateEngine templateEngine;
 
-    @Async
+    public void sendMailAsync(MailMessage message) {
+        CompletableFuture.runAsync(() -> sendHtml(message));
+    }
+
     public void sendMail(MailMessage message) {
         sendHtml(message);
     }
 
-    @Async
+    public void sendPlainMailAsync(String receiverEmail, String subject, String body) {
+        CompletableFuture.runAsync(() -> sendPlain(new String[]{receiverEmail}, subject, body));
+    }
+
     public void sendPlainMail(String receiverEmail, String subject, String body) {
         sendPlain(new String[]{receiverEmail}, subject, body);
     }

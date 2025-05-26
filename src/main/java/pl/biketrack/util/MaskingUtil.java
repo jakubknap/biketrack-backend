@@ -2,10 +2,16 @@ package pl.biketrack.util;
 
 import lombok.experimental.UtilityClass;
 
+import static java.util.Objects.isNull;
+
 @UtilityClass
 public class MaskingUtil {
-    
+
     public static String maskEmail(String input) {
+        if (isNull(input) || input.isEmpty()) {
+            return null;
+        }
+
         int atIndex = input.indexOf('@');
         if (atIndex < 0) {
             return "***";
