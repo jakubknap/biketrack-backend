@@ -16,7 +16,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.biketrack.auditing.ApplicationAuditAware;
-import pl.biketrack.user.service.UserService;
+import pl.biketrack.exception.exception.ServiceException;
+import pl.biketrack.user.repository.UserRepository;
+
+import static pl.biketrack.common.enumerated.ResponseCode.E03001;
+import static pl.biketrack.util.MaskingUtil.maskEmail;
 
 @Slf4j
 @Configuration
@@ -25,11 +29,15 @@ import pl.biketrack.user.service.UserService;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return userService::getUserByEmail;
+        return username -> userRepository.findByEmail(username)
+                                         .orElseThrow(() -> {
+                                             log.error("User with e-mail: [{}] not found", maskEmail(username));
+                                             return new ServiceException(E03001);
+                                         });
     }
 
     @Bean

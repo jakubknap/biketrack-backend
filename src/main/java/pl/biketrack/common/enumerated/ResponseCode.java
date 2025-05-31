@@ -51,6 +51,10 @@ public enum ResponseCode {
     E03001("User not found", NOT_FOUND),
     E03002("User does not have an active account", UNPROCESSABLE_ENTITY),
     E03003("User already had the account activated", UNPROCESSABLE_ENTITY),
+    E03004("Passwords are not the same", BAD_REQUEST),
+    E03005("New Password is the same as the current password", BAD_REQUEST),
+    E03006("E-mail is taken by another user", UNPROCESSABLE_ENTITY),
+    E03007("Nickname is taken by another user", UNPROCESSABLE_ENTITY),
 
     // TOKEN ERRORS
     E04000("Token not found", NOT_FOUND),
