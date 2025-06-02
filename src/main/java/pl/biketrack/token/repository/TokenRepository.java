@@ -33,9 +33,8 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     Optional<TokenStatusAndType> getTokenStatusAndType(String token);
 
     @Query("""
-            SELECT u.uuid
+            SELECT t.user.uuid
             FROM Token t
-                     INNER JOIN User u ON t.user.id = u.id
             WHERE t.token = :token
             """)
     Optional<UUID> findUserUuidByToken(String token);
@@ -43,7 +42,7 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     @Query("""
             SELECT t
             FROM Token t
-                     INNER JOIN User u ON t.user.id = u.id
+                     JOIN FETCH t.user
             WHERE t.token = :token
             """)
     Optional<Token> findTokenWithUserByToken(String token);

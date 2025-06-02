@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.biketrack.authentication.dto.request.ConfirmResetPasswordRequest;
 import pl.biketrack.authentication.dto.request.LoginRequest;
 import pl.biketrack.authentication.dto.request.RegisterRequest;
 import pl.biketrack.authentication.dto.request.ResendTokenRequest;
+import pl.biketrack.authentication.dto.request.ResetPasswordRequest;
 import pl.biketrack.authentication.dto.response.AuthenticationResponse;
 import pl.biketrack.authentication.service.AuthenticationService;
+import pl.biketrack.authentication.service.PasswordService;
 import pl.biketrack.exception.dto.response.BaseResponse;
 import pl.biketrack.token.enumerated.TokenType;
 import pl.biketrack.token.service.TokenServiceFactory;
@@ -31,6 +34,7 @@ import static pl.biketrack.util.MaskingUtil.maskEmail;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final PasswordService passwordService;
     private final TokenServiceFactory tokenServiceFactory;
 
     @PostMapping("/register")
@@ -55,6 +59,18 @@ public class AuthenticationController {
     public AuthenticationResponse refreshToken(HttpServletRequest request) {
         log.info("Start refreshing user token");
         return authenticationService.refreshToken(request);
+    }
+
+    @PostMapping("/password-reset/request")
+    public BaseResponse resetPasswordRequest(@Valid @RequestBody ResetPasswordRequest request) {
+        log.info("Start password recovery process for user with e-mail: [{}]", maskEmail(request.email()));
+        return passwordService.resetPasswordRequest(request);
+    }
+
+    @PostMapping("/password-reset/confirm")
+    public BaseResponse confirmResetPassword(@Valid @RequestBody ConfirmResetPasswordRequest request) {
+        log.info("Start password reset process for token: [{}]", request.token());
+        return passwordService.confirmResetPassword(request);
     }
 
     @PostMapping("/resend-token")

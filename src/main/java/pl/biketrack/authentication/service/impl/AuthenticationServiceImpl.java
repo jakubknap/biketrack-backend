@@ -81,6 +81,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(user);
 
         sendActivationLink(user);
+
         log.info("User with e-mail: [{}] has been successfully registered. Assigned UUID: {}", MaskingUtil.maskEmail(email), user.getUuid());
         return new BaseResponse(S00002);
     }
@@ -90,7 +91,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public BaseResponse activateAccount(UUID token) {
         Token tokenEntity = tokenServiceFactory.getTokenService(TokenType.ACCOUNT_ACTIVATION_TOKEN)
                                                .getAndValidateToken(token.toString());
+
         activateUser(tokenEntity);
+
+        log.info("Successfully activated user with UUID: [{}]", tokenEntity.getUser().getUuid());
         return new BaseResponse(S00000);
     }
 
@@ -98,8 +102,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Transactional
     public AuthenticationResponse authenticate(LoginRequest request) {
         User user = tryAuthenticateUser(request);
+
         TokenPairDto generatedTokens = generateTokens(user);
-        log.info("Successfully authenticated user with e-mail: [{}]", MaskingUtil.maskEmail(request.email()));
+
+        log.info("Successfully authenticated user with UUID: [{}]", user.getUuid());
         return new AuthenticationResponse(generatedTokens.accessToken(), generatedTokens.refreshToken());
     }
 
@@ -112,19 +118,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         final String userEmail = user.getEmail();
 
         jwtService.validateToken(refreshToken, userEmail, TokenType.REFRESH_TOKEN);
-        jwtService.revokeAllUserTokensByType(user.getUuid(), TokenType.ACCESS_TOKEN);
+        jwtService.revokeAllUserJwtAccessTokens(user.getUuid());
 
         Token accessToken = jwtService.buildJwtTokenEntity(user, jwtService.generateAccessToken(userEmail), TokenType.ACCESS_TOKEN);
         tokenRepository.save(accessToken);
 
-        log.info("Successfully refreshed access token for user with e-mail: [{}]", MaskingUtil.maskEmail(userEmail));
+        log.info("Successfully refreshed access token for user with UUID: [{}]", user.getUuid());
         return new AuthenticationResponse(accessToken.getToken(), refreshToken);
     }
 
     private void sendActivationLink(User user) {
         String activationToken = tokenServiceFactory.getTokenService(TokenType.ACCOUNT_ACTIVATION_TOKEN)
                                                     .generateToken(user);
-        mailService.sendMailAsync(new AccountActivationMail(user.getEmail(), user.getNickname(), frontendProperties.prepareActivationLink(activationToken)));
+        mailService.sendMailAsync(new AccountActivationMail(user.getEmail(), user.getNickname(), frontendProperties.prepareAccountActivationLink(activationToken)));
     }
 
     private void activateUser(Token tokenEntity) {
@@ -137,8 +143,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         tokenEntity.setUsedAt(LocalDateTime.now());
         tokenRepository.save(tokenEntity);
-
-        log.info("Successfully activated user with e-mail: [{}]", user.getEmail());
     }
 
     private void validateUserStatus(User user) {
@@ -194,7 +198,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private TokenPairDto generateTokens(User user) {
         String email = user.getEmail();
 
-        jwtService.revokeAllUserTokens(user.getUuid());
+        jwtService.revokeAllUserJwtTokens(user.getUuid());
 
         Token accessToken = jwtService.buildJwtTokenEntity(user, jwtService.generateAccessToken(email), TokenType.ACCESS_TOKEN);
         Token refreshToken = jwtService.buildJwtTokenEntity(user, jwtService.generateRefreshToken(email), TokenType.REFRESH_TOKEN);

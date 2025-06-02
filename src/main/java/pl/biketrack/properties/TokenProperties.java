@@ -18,4 +18,7 @@ public class TokenProperties {
 
     @NotNull
     private Duration accountActivationTokenExpiration;
+
+    @NotNull
+    private Duration passwordResetTokenExpiration;
 }

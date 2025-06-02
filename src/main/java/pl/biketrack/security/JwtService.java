@@ -75,14 +75,14 @@ public class JwtService {
         validateTokenStatusAndExpectedType(token, expectedTokenType);
     }
 
-    public void revokeAllUserTokens(UUID userUuid) {
-        log.info("Revoking all valid tokens for user with UUID: [{}]", userUuid);
+    public void revokeAllUserJwtTokens(UUID userUuid) {
+        log.info("Revoking all valid JWT tokens for user with UUID: [{}]", userUuid);
         tokenRepository.revokeAllValidTokensByUserUuid(userUuid, List.of(ACCESS_TOKEN, REFRESH_TOKEN));
     }
 
-    public void revokeAllUserTokensByType(UUID userUuid, TokenType tokenType) {
-        log.info("Revoking all valid {}S for user with UUID: [{}]", tokenType, userUuid);
-        tokenRepository.revokeAllValidTokensByUserUuid(userUuid, List.of(tokenType));
+    public void revokeAllUserJwtAccessTokens(UUID userUuid) {
+        log.info("Revoking all valid JWT {}S for user with UUID: [{}]", ACCESS_TOKEN, userUuid);
+        tokenRepository.revokeAllValidTokensByUserUuid(userUuid, List.of(ACCESS_TOKEN));
     }
 
     public String generateAccessToken(String userEmail) {

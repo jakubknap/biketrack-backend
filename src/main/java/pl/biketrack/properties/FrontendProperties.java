@@ -17,7 +17,14 @@ public class FrontendProperties {
     @NotBlank
     private String activationAccountUrl;
 
-    public String prepareActivationLink(String activationToken) {
+    @NotBlank
+    private String resetPasswordUrl;
+
+    public String prepareAccountActivationLink(String activationToken) {
         return activationAccountUrl + "/" + activationToken;
+    }
+
+    public String prepareResetPasswordLink(String resetPasswordToken) {
+        return resetPasswordUrl + "/" + resetPasswordToken;
     }
 }
