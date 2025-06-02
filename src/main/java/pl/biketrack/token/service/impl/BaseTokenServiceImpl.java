@@ -36,7 +36,7 @@ public abstract class BaseTokenServiceImpl implements TokenService {
     @Override
     public void revokeAllUserTokensByType(UUID userUuid) {
         log.info("Revoking all valid {}S for user with UUID: [{}]", getTokenType(), userUuid);
-        tokenRepository.revokeAllValidTokensByUserUuid(userUuid, List.of(getTokenType()));
+        tokenRepository.revokeAllValidTokensByUserUuidAndTokenTypes(userUuid, List.of(getTokenType()));
     }
 
     @Override

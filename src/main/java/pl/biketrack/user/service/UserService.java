@@ -12,4 +12,6 @@ public interface UserService {
     BaseResponse updateUser(UpdateUserRequest request);
 
     BaseResponse changePassword(ChangePasswordRequest request);
+
+    BaseResponse deleteUser();
 }

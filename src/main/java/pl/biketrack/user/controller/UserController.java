@@ -3,6 +3,7 @@ package pl.biketrack.user.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,5 +32,10 @@ public class UserController {
     @PatchMapping("/change-password")
     public BaseResponse changePassword(@RequestBody @Valid ChangePasswordRequest request) {
         return userService.changePassword(request);
+    }
+
+    @DeleteMapping
+    public BaseResponse deleteUser() {
+        return userService.deleteUser();
     }
 }

@@ -23,7 +23,17 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
               AND t.user.uuid = :userUuid
               AND t.tokenType IN :tokenTypes
             """)
-    void revokeAllValidTokensByUserUuid(UUID userUuid, List<TokenType> tokenTypes);
+    void revokeAllValidTokensByUserUuidAndTokenTypes(UUID userUuid, List<TokenType> tokenTypes);
+
+    @Modifying
+    @Transactional
+    @Query("""
+            UPDATE Token t
+            SET t.revoked = TRUE
+            WHERE t.revoked = FALSE
+              AND t.user.uuid = :userUuid
+            """)
+    void revokeAllValidTokensByUserUuid(UUID userUuid);
 
     @Query("""
             SELECT new pl.biketrack.token.dto.TokenStatusAndType(t.revoked, t.tokenType)

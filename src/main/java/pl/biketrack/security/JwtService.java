@@ -77,12 +77,12 @@ public class JwtService {
 
     public void revokeAllUserJwtTokens(UUID userUuid) {
         log.info("Revoking all valid JWT tokens for user with UUID: [{}]", userUuid);
-        tokenRepository.revokeAllValidTokensByUserUuid(userUuid, List.of(ACCESS_TOKEN, REFRESH_TOKEN));
+        tokenRepository.revokeAllValidTokensByUserUuidAndTokenTypes(userUuid, List.of(ACCESS_TOKEN, REFRESH_TOKEN));
     }
 
     public void revokeAllUserJwtAccessTokens(UUID userUuid) {
         log.info("Revoking all valid JWT {}S for user with UUID: [{}]", ACCESS_TOKEN, userUuid);
-        tokenRepository.revokeAllValidTokensByUserUuid(userUuid, List.of(ACCESS_TOKEN));
+        tokenRepository.revokeAllValidTokensByUserUuidAndTokenTypes(userUuid, List.of(ACCESS_TOKEN));
     }
 
     public String generateAccessToken(String userEmail) {
