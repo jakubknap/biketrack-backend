@@ -25,7 +25,6 @@ import pl.biketrack.properties.FrontendProperties;
 import pl.biketrack.security.JwtService;
 import pl.biketrack.token.dto.TokenPairDto;
 import pl.biketrack.token.enumerated.TokenType;
-import pl.biketrack.token.mapper.TokenMapper;
 import pl.biketrack.token.model.Token;
 import pl.biketrack.token.repository.TokenRepository;
 import pl.biketrack.token.service.TokenServiceFactory;
@@ -64,7 +63,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
     private final AuthenticationManager authenticationManager;
-    private final TokenMapper tokenMapper;
     private final TokenServiceFactory tokenServiceFactory;
     private final MailService mailService;
     private final FrontendProperties frontendProperties;
@@ -116,7 +114,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         jwtService.validateToken(refreshToken, userEmail, TokenType.REFRESH_TOKEN);
         jwtService.revokeAllUserTokensByType(user.getUuid(), TokenType.ACCESS_TOKEN);
 
-        Token accessToken = tokenMapper.buildJwtToken(user, jwtService.generateAccessToken(userEmail), TokenType.ACCESS_TOKEN);
+        Token accessToken = jwtService.buildJwtTokenEntity(user, jwtService.generateAccessToken(userEmail), TokenType.ACCESS_TOKEN);
         tokenRepository.save(accessToken);
 
         log.info("Successfully refreshed access token for user with e-mail: [{}]", MaskingUtil.maskEmail(userEmail));
@@ -198,8 +196,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         jwtService.revokeAllUserTokens(user.getUuid());
 
-        Token accessToken = tokenMapper.buildJwtToken(user, jwtService.generateAccessToken(email), TokenType.ACCESS_TOKEN);
-        Token refreshToken = tokenMapper.buildJwtToken(user, jwtService.generateRefreshToken(email), TokenType.REFRESH_TOKEN);
+        Token accessToken = jwtService.buildJwtTokenEntity(user, jwtService.generateAccessToken(email), TokenType.ACCESS_TOKEN);
+        Token refreshToken = jwtService.buildJwtTokenEntity(user, jwtService.generateRefreshToken(email), TokenType.REFRESH_TOKEN);
 
         tokenRepository.saveAll(List.of(accessToken, refreshToken));
         return new TokenPairDto(accessToken.getToken(), refreshToken.getToken());

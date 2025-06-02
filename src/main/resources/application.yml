@@ -48,6 +48,7 @@ application:
   mail:
     enabled: true
     sender-mail: no-reply@biketrack.pl
+    sender-name: BikeTrack
   frontend:
     base-url: http://localhost:4200
     activation-account-url: ${application.frontend.base-url}/active-account

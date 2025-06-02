@@ -13,6 +13,8 @@ import pl.biketrack.user.model.User;
 import pl.biketrack.user.repository.UserRepository;
 import pl.biketrack.user.service.UserService;
 
+import java.util.UUID;
+
 import static pl.biketrack.common.enumerated.ResponseCode.E03001;
 import static pl.biketrack.common.enumerated.ResponseCode.E03004;
 import static pl.biketrack.common.enumerated.ResponseCode.E03005;
@@ -42,45 +44,57 @@ public class UserServiceImpl implements UserService {
     @Override
     public BaseResponse updateUser(UpdateUserRequest request) {
         User user = SecurityUtils.getLoggedUser();
-        log.info("Start the process of updating user with UUID: [{}]", user.getUuid());
+        UUID userUuid = user.getUuid();
 
-        if (notEquals(request.email(), user.getEmail())) {
-            boolean isEmailTaken = userRepository.isEmailTaken(request.email(), user.getUuid());
-            if (isEmailTaken) {
-                log.error("User cannot be updated. There is another user with that e-mail.");
-                throw new ServiceException(E03006);
-            }
-        }
+        log.info("Start the process of updating user with UUID: [{}]", userUuid);
 
-        if (notEquals(request.nickname(), user.getNickname())) {
-            boolean isNicknameTaken = userRepository.isNicknameTaken(request.nickname(), user.getUuid());
-            if (isNicknameTaken) {
-                log.error("User cannot be updated. There is another user with that nickname.");
-                throw new ServiceException(E03007);
-            }
-        }
+        validateDataAvailability(request, user);
+        updateUser(request, user);
 
-        user.setEmail(request.email());
-        user.setNickname(request.nickname());
-
-        userRepository.save(user);
-
-        log.info("Successfully completed process of updating user with UUID: [{}]", user.getUuid());
+        log.info("Successfully completed process of updating user with UUID: [{}]", userUuid);
         return new BaseResponse(S00000);
     }
 
     @Override
     public BaseResponse changePassword(ChangePasswordRequest request) {
         User user = SecurityUtils.getLoggedUser();
-        log.info("Start the process of changing password for user with UUID: [{}]", user.getUuid());
+        UUID userUuid = user.getUuid();
+        log.info("Start the process of changing password for user with UUID: [{}]", userUuid);
 
         validatePasswordChangeRequest(request, user);
+        updatePassword(request, user);
 
-        user.setPassword(passwordEncoder.encode(request.password()));
-        userRepository.save(user);
-
-        log.info("Successfully completed the password change process for the user with UUID: [{}]", user.getUuid());
+        log.info("Successfully completed the password change process for the user with UUID: [{}]", userUuid);
         return new BaseResponse(S00000);
+    }
+
+    private void validateDataAvailability(UpdateUserRequest request, User user) {
+        UUID userUuid = user.getUuid();
+
+        boolean isEmailChanged = notEquals(request.email(), user.getEmail());
+        if (isEmailChanged) {
+            boolean isEmailTaken = userRepository.isEmailTaken(request.email(), userUuid);
+            if (isEmailTaken) {
+                log.error("User cannot be updated. There is another user with that e-mail.");
+                throw new ServiceException(E03006);
+            }
+        }
+
+        boolean isNicknameChanged = notEquals(request.nickname(), user.getNickname());
+        if (isNicknameChanged) {
+            boolean isNicknameTaken = userRepository.isNicknameTaken(request.nickname(), userUuid);
+            if (isNicknameTaken) {
+                log.error("User cannot be updated. There is another user with that nickname.");
+                throw new ServiceException(E03007);
+            }
+        }
+    }
+
+    private void updateUser(UpdateUserRequest request, User user) {
+        user.setEmail(request.email());
+        user.setNickname(request.nickname());
+
+        userRepository.save(user);
     }
 
     private void validatePasswordChangeRequest(ChangePasswordRequest request, User user) {
@@ -93,5 +107,10 @@ public class UserServiceImpl implements UserService {
             log.error("The password is the same as the user's current password");
             throw new ServiceException(E03005);
         }
+    }
+
+    private void updatePassword(ChangePasswordRequest request, User user) {
+        user.setPassword(passwordEncoder.encode(request.password()));
+        userRepository.save(user);
     }
 }

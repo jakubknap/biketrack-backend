@@ -10,8 +10,8 @@ import pl.biketrack.exception.exception.ServiceException;
 import pl.biketrack.mail.impl.AccountActivationMail;
 import pl.biketrack.mail.service.MailService;
 import pl.biketrack.properties.FrontendProperties;
+import pl.biketrack.properties.TokenProperties;
 import pl.biketrack.token.enumerated.TokenType;
-import pl.biketrack.token.mapper.TokenMapper;
 import pl.biketrack.token.model.Token;
 import pl.biketrack.token.repository.TokenRepository;
 import pl.biketrack.token.service.TokenService;
@@ -31,30 +31,29 @@ import static pl.biketrack.common.enumerated.ResponseCode.E04002;
 import static pl.biketrack.common.enumerated.ResponseCode.E04003;
 import static pl.biketrack.common.enumerated.ResponseCode.E04004;
 import static pl.biketrack.common.enumerated.ResponseCode.S00000;
-import static pl.biketrack.token.enumerated.TokenType.ACCOUNT_ACTIVATION_TOKEN;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ActivationAccountTokenServiceImpl implements TokenService {
 
-    private static final TokenType TOKEN_TYPE = ACCOUNT_ACTIVATION_TOKEN;
+    private static final TokenType ACCOUNT_ACTIVATION_TOKEN = TokenType.ACCOUNT_ACTIVATION_TOKEN;
 
     private final TokenRepository tokenRepository;
-    private final TokenMapper tokenMapper;
+    private final TokenProperties tokenProperties;
     private final UserService userService;
     private final FrontendProperties frontendProperties;
     private final MailService mailService;
 
     @Override
-    public void revokeAllUserTokensByType(UUID userUuid, TokenType tokenType) {
-        log.info("Revoking all valid {}S for user with UUID: [{}]", tokenType, userUuid);
-        tokenRepository.revokeAllValidTokensByUserUuid(userUuid, List.of(tokenType));
+    public void revokeAllUserTokensByType(UUID userUuid) {
+        log.info("Revoking all valid {}S for user with UUID: [{}]", ACCOUNT_ACTIVATION_TOKEN, userUuid);
+        tokenRepository.revokeAllValidTokensByUserUuid(userUuid, List.of(ACCOUNT_ACTIVATION_TOKEN));
     }
 
     @Override
     public String generateToken(User user) {
-        Token token = tokenMapper.buildToken(TOKEN_TYPE, user);
+        Token token = buildToken(user);
         tokenRepository.save(token);
         return token.getToken();
     }
@@ -73,13 +72,23 @@ public class ActivationAccountTokenServiceImpl implements TokenService {
 
         validateUserStatus(request, user);
 
-        revokeAllUserTokensByType(user.getUuid(), ACCOUNT_ACTIVATION_TOKEN);
+        revokeAllUserTokensByType(user.getUuid());
 
         String activationToken = generateToken(user);
         mailService.sendMail(new AccountActivationMail(user.getEmail(), user.getNickname(), frontendProperties.prepareActivationLink(activationToken)));
 
         log.info("Successfully resent the token");
         return new BaseResponse(S00000);
+    }
+
+    private Token buildToken(User user) {
+        return Token.builder()
+                    .token(UUID.randomUUID().toString())
+                    .tokenType(ACCOUNT_ACTIVATION_TOKEN)
+                    .revoked(false)
+                    .expiresAt(LocalDateTime.now().plus(tokenProperties.getAccountActivationTokenExpiration()))
+                    .user(user)
+                    .build();
     }
 
     private void validateToken(String token, Token tokenEntity) {
@@ -98,8 +107,8 @@ public class ActivationAccountTokenServiceImpl implements TokenService {
     }
 
     private void validateTokenType(TokenType tokenType, String token) {
-        if (TOKEN_TYPE != tokenType) {
-            log.error("Token type is invalid for this operation. Expected token type is: [{}], provided: [{}]. Token: [{}]", TOKEN_TYPE, tokenType, token);
+        if (ACCOUNT_ACTIVATION_TOKEN != tokenType) {
+            log.error("Token type is invalid for this operation. Expected token type is: [{}], provided: [{}]. Token: [{}]", ACCOUNT_ACTIVATION_TOKEN, tokenType, token);
             throw new ServiceException(E04003);
         }
     }
@@ -127,7 +136,7 @@ public class ActivationAccountTokenServiceImpl implements TokenService {
     }
 
     private void validateUserStatus(ResendTokenRequest request, User user) {
-        boolean isActivationTokenRequest = TOKEN_TYPE == request.tokenType();
+        boolean isActivationTokenRequest = ACCOUNT_ACTIVATION_TOKEN == request.tokenType();
         boolean wasUserActivated = UserStatus.REGISTERED != user.getStatus();
 
         if (isActivationTokenRequest && wasUserActivated) {

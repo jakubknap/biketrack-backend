@@ -1,5 +1,6 @@
 package pl.biketrack.mail.service;
 
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import pl.biketrack.mail.MailMessage;
 import pl.biketrack.properties.MailProperties;
 import pl.biketrack.util.MaskingUtil;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -58,7 +60,7 @@ public class MailService {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-            helper.setFrom(mailProperties.getSenderMail());
+            helper.setFrom(prepareSender());
             helper.setTo(to);
             mimeMessage.setSubject(subject);
 
@@ -84,7 +86,7 @@ public class MailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, false);
-            helper.setFrom(mailProperties.getSenderMail());
+            helper.setFrom(prepareSender());
             helper.setTo(to);
             message.setSubject(subject);
             helper.setText(mailBody, false);
@@ -118,5 +120,9 @@ public class MailService {
         return Arrays.stream(emails)
                      .map(MaskingUtil::maskEmail)
                      .toArray(String[]::new);
+    }
+
+    private InternetAddress prepareSender() throws UnsupportedEncodingException {
+        return new InternetAddress(mailProperties.getSenderMail(), mailProperties.getSenderName());
     }
 }

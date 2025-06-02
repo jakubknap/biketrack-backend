@@ -17,7 +17,9 @@ import pl.biketrack.exception.exception.ServiceException;
 import pl.biketrack.properties.JwtProperties;
 import pl.biketrack.token.dto.TokenStatusAndType;
 import pl.biketrack.token.enumerated.TokenType;
+import pl.biketrack.token.model.Token;
 import pl.biketrack.token.repository.TokenRepository;
+import pl.biketrack.user.model.User;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;
@@ -89,6 +91,15 @@ public class JwtService {
 
     public String generateRefreshToken(String userEmail) {
         return generateToken(new HashMap<>(), userEmail, jwtProperties.getRefreshTokenExpiration());
+    }
+
+    public Token buildJwtTokenEntity(User user, String token, TokenType tokenType) {
+        return Token.builder()
+                    .token(token)
+                    .tokenType(tokenType)
+                    .revoked(false)
+                    .user(user)
+                    .build();
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

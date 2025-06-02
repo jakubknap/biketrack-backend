@@ -28,7 +28,7 @@ public class UserController {
         return userService.updateUser(request);
     }
 
-    @PatchMapping
+    @PatchMapping("/change-password")
     public BaseResponse changePassword(@RequestBody @Valid ChangePasswordRequest request) {
         return userService.changePassword(request);
     }

@@ -21,6 +21,9 @@ public class MailProperties {
     @NotBlank
     private String senderMail;
 
+    @NotBlank
+    private String senderName;
+
     public boolean isMailingDisabled() {
         return !isEnabled;
     }
