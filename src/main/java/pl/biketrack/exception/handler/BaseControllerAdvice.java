@@ -2,6 +2,7 @@ package pl.biketrack.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -65,6 +66,12 @@ public class BaseControllerAdvice {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<BaseResponse> handleException(NoResourceFoundException ex) {
         log.error("NoResourceFoundException error: {}", ex.getMessage(), ex);
+        return new BaseResponse(E00005).get();
+    }
+
+    @ExceptionHandler(HttpMessageConversionException.class)
+    public ResponseEntity<BaseResponse> handleException(HttpMessageConversionException ex) {
+        log.error("HttpMessageConversionException error: {}", ex.getMessage(), ex);
         return new BaseResponse(E00005).get();
     }
 

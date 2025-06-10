@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -23,6 +24,7 @@ public enum ResponseCode {
     S00000("Success", OK),
     S00001("Success", NO_CONTENT),
     S00002("Success", ACCEPTED),
+    S00003("Success", CREATED),
 
     // GLOBAL ERRORS
     E00000("Bad Request", BAD_REQUEST),
@@ -61,7 +63,11 @@ public enum ResponseCode {
     E04001("Expired token", BAD_REQUEST),
     E04002("Revoked token", BAD_REQUEST),
     E04003("Invalid token", BAD_REQUEST),
-    E04004("Token used", BAD_REQUEST);
+    E04004("Token used", BAD_REQUEST),
+
+    // BIKE ERRORS
+    E05000("Bike not found", NOT_FOUND),
+    E05001("Logged in user is not the owner of the bike", UNPROCESSABLE_ENTITY);
 
     private final String message;
     private final HttpStatus httpStatus;

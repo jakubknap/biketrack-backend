@@ -1,6 +1,5 @@
 package pl.biketrack.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -61,10 +60,5 @@ public class ApplicationConfig {
     @Bean
     public AuditorAware<Long> auditorAware() {
         return new ApplicationAuditAware();
-    }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
     }
 }

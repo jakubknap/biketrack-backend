@@ -50,7 +50,7 @@ import static pl.biketrack.common.enumerated.ResponseCode.E03001;
 import static pl.biketrack.common.enumerated.ResponseCode.E03002;
 import static pl.biketrack.common.enumerated.ResponseCode.E03003;
 import static pl.biketrack.common.enumerated.ResponseCode.S00000;
-import static pl.biketrack.common.enumerated.ResponseCode.S00002;
+import static pl.biketrack.common.enumerated.ResponseCode.S00003;
 
 @Slf4j
 @Service
@@ -83,7 +83,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         sendActivationLink(user);
 
         log.info("User with e-mail: [{}] has been successfully registered. Assigned UUID: {}", MaskingUtil.maskEmail(email), user.getUuid());
-        return new BaseResponse(S00002);
+        return new BaseResponse(S00003);
     }
 
     @Override
