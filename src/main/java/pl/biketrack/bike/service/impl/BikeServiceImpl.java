@@ -2,13 +2,17 @@ package pl.biketrack.bike.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.biketrack.bike.dto.request.CreateBikeRequest;
 import pl.biketrack.bike.dto.request.UpdateBikeRequest;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
+import pl.biketrack.bike.dto.response.BikeListResponse;
 import pl.biketrack.bike.model.Bike;
 import pl.biketrack.bike.repository.BikeRepository;
 import pl.biketrack.bike.service.BikeService;
+import pl.biketrack.common.dto.PageResponse;
 import pl.biketrack.exception.dto.response.BaseResponse;
 import pl.biketrack.exception.exception.ServiceException;
 import pl.biketrack.security.util.SecurityUtils;
@@ -29,6 +33,14 @@ import static pl.biketrack.common.enumerated.ResponseCode.S00003;
 public class BikeServiceImpl implements BikeService {
 
     private final BikeRepository bikeRepository;
+
+    @Override
+    public PageResponse<BikeListResponse> getBikeList(Pageable pageable) {
+        UUID userUuid = SecurityUtils.getLoggedUserUUID();
+        log.info("Start the process of getting bike list for user with UUID: [{}]", userUuid);
+        Page<BikeListResponse> page = bikeRepository.getBikeList(pageable, userUuid);
+        return PageResponse.of(page);
+    }
 
     @Override
     public BaseResponse createBike(CreateBikeRequest request) {

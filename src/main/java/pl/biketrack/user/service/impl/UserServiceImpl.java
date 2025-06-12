@@ -5,16 +5,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.biketrack.bike.repository.BikeRepository;
 import pl.biketrack.exception.dto.response.BaseResponse;
 import pl.biketrack.exception.exception.ServiceException;
+import pl.biketrack.repair.dto.UserRepairStatisticsDto;
+import pl.biketrack.repair.repository.RepairRepository;
 import pl.biketrack.security.util.SecurityUtils;
 import pl.biketrack.token.repository.TokenRepository;
 import pl.biketrack.user.dto.request.ChangePasswordRequest;
 import pl.biketrack.user.dto.request.UpdateUserRequest;
+import pl.biketrack.user.dto.response.UserDetailsResponse;
+import pl.biketrack.user.dto.response.UserStatisticsResponse;
 import pl.biketrack.user.model.User;
 import pl.biketrack.user.repository.UserRepository;
 import pl.biketrack.user.service.UserService;
 
+import java.util.List;
 import java.util.UUID;
 
 import static pl.biketrack.common.enumerated.ResponseCode.E03001;
@@ -24,6 +30,8 @@ import static pl.biketrack.common.enumerated.ResponseCode.E03006;
 import static pl.biketrack.common.enumerated.ResponseCode.E03007;
 import static pl.biketrack.common.enumerated.ResponseCode.S00000;
 import static pl.biketrack.user.enumerated.UserStatus.DEACTIVATED;
+import static pl.biketrack.user.mapper.UserMapper.buildUserDetailsResponse;
+import static pl.biketrack.user.mapper.UserMapper.mapToUserStatisticsResponse;
 import static pl.biketrack.util.MaskingUtil.maskEmail;
 import static pl.biketrack.util.StringUtil.notEquals;
 
@@ -35,6 +43,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
+    private final BikeRepository bikeRepository;
+    private final RepairRepository repairRepository;
 
     @Override
     public User getUserByEmail(String email) {
@@ -43,6 +53,13 @@ public class UserServiceImpl implements UserService {
                                  log.error("User with e-mail: [{}] not found", maskEmail(email));
                                  return new ServiceException(E03001);
                              });
+    }
+
+    @Override
+    public UserDetailsResponse getUserDetails() {
+        User user = SecurityUtils.getLoggedUser();
+        log.info("Start the process of retrieving a user details for user with UUID: [{}]", user.getUuid());
+        return buildUserDetailsResponse(user);
     }
 
     @Override
@@ -70,6 +87,17 @@ public class UserServiceImpl implements UserService {
 
         log.info("Successfully completed the password change process for the user with UUID: [{}]", userUuid);
         return new BaseResponse(S00000);
+    }
+
+    @Override
+    public UserStatisticsResponse getUserStatistics() {
+        UUID userUuid = SecurityUtils.getLoggedUserUUID();
+        log.info("Start the process of getting user statistics for user with UUID: [{}]", userUuid);
+
+        long totalBikes = bikeRepository.countByUserUuid(userUuid);
+        List<UserRepairStatisticsDto> userRepairStatisticsDto = repairRepository.getUserRepairStatisticsDto(userUuid);
+
+        return mapToUserStatisticsResponse(totalBikes, userRepairStatisticsDto);
     }
 
     @Override

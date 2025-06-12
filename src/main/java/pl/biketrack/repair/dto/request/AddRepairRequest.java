@@ -4,10 +4,13 @@ import com.neovisionaries.i18n.CurrencyCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import pl.biketrack.validation.SafeText;
+import pl.biketrack.validation.SupportedCurrencies;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import static com.neovisionaries.i18n.CurrencyCode.PLN;
 
 public record AddRepairRequest(
 
@@ -23,6 +26,7 @@ public record AddRepairRequest(
 
         BigDecimal cost,
 
+        @SupportedCurrencies(supportedCurrencies = {PLN})
         CurrencyCode currency,
 
         LocalDate repairDate

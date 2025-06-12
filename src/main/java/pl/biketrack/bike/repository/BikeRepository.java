@@ -1,8 +1,11 @@
 package pl.biketrack.bike.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
+import pl.biketrack.bike.dto.response.BikeListResponse;
 import pl.biketrack.bike.model.Bike;
 
 import java.util.Optional;
@@ -32,8 +35,24 @@ public interface BikeRepository extends JpaRepository<Bike, Long> {
             b.user.uuid
             )
             FROM Bike b
-                JOIN b.user
             WHERE b.uuid = :bikeUuid
             """)
     Optional<BikeDetailsResponse> getBikeDetails(UUID bikeUuid);
+
+    @Query("""
+            SELECT COUNT(b)
+            FROM Bike b
+            WHERE b.user.uuid = :userUuid
+            """)
+    long countByUserUuid(UUID userUuid);
+
+    @Query("""
+            SELECT new pl.biketrack.bike.dto.response.BikeListResponse(
+            b.uuid,
+            b.name
+            )
+            FROM Bike b
+            WHERE b.user.uuid = :userUuid
+            """)
+    Page<BikeListResponse> getBikeList(Pageable pageable, UUID userUuid);
 }

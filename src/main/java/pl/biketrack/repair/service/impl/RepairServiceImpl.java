@@ -2,15 +2,19 @@ package pl.biketrack.repair.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.biketrack.bike.model.Bike;
 import pl.biketrack.bike.service.BikeService;
+import pl.biketrack.common.dto.PageResponse;
 import pl.biketrack.common.enumerated.ResponseCode;
 import pl.biketrack.exception.dto.response.BaseResponse;
 import pl.biketrack.exception.exception.ServiceException;
 import pl.biketrack.repair.dto.request.AddRepairRequest;
 import pl.biketrack.repair.dto.request.UpdateRepairRequest;
 import pl.biketrack.repair.dto.response.RepairDetailsResponse;
+import pl.biketrack.repair.dto.response.RepairListResponse;
 import pl.biketrack.repair.model.Repair;
 import pl.biketrack.repair.repository.RepairRepository;
 import pl.biketrack.repair.service.RepairService;
@@ -33,6 +37,14 @@ public class RepairServiceImpl implements RepairService {
 
     private final RepairRepository repairRepository;
     private final BikeService bikeService;
+
+    @Override
+    public PageResponse<RepairListResponse> getRepairList(Pageable pageable) {
+        UUID userUuid = SecurityUtils.getLoggedUserUUID();
+        log.info("Start the process of getting repair list for user with UUID: [{}]", userUuid);
+        Page<RepairListResponse> page = repairRepository.getRepairList(pageable, userUuid);
+        return PageResponse.of(page);
+    }
 
     @Override
     public BaseResponse addRepair(AddRepairRequest request) {

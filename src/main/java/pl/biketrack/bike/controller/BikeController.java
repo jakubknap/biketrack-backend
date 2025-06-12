@@ -3,6 +3,8 @@ package pl.biketrack.bike.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,11 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.biketrack.bike.dto.request.CreateBikeRequest;
 import pl.biketrack.bike.dto.request.UpdateBikeRequest;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
+import pl.biketrack.bike.dto.response.BikeListResponse;
 import pl.biketrack.bike.service.BikeService;
+import pl.biketrack.common.dto.PageResponse;
 import pl.biketrack.exception.dto.response.BaseResponse;
 
 import java.util.UUID;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
 import static pl.biketrack.common.constant.Urls.BIKES_URL;
 
 @Slf4j
@@ -28,6 +33,11 @@ import static pl.biketrack.common.constant.Urls.BIKES_URL;
 public class BikeController {
 
     private final BikeService bikeService;
+
+    @GetMapping
+    public PageResponse<BikeListResponse> getBikeList(@PageableDefault(size = 2, sort = "createdDate", direction = DESC) Pageable pageable) {
+        return bikeService.getBikeList(pageable);
+    }
 
     @PostMapping
     public BaseResponse createBike(@RequestBody @Valid CreateBikeRequest request) {
