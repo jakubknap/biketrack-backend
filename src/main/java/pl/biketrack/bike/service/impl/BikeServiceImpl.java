@@ -61,7 +61,7 @@ public class BikeServiceImpl implements BikeService {
         UUID bikeUuid = request.bikeUuid();
         log.info("Start the process of updating bike with UUID: [{}]", bikeUuid);
 
-        Bike bike = findBikeOrElseThrow(bikeUuid);
+        Bike bike = findBikeWithUserOrElseThrow(bikeUuid);
         validateBikeOwner(bike.getUser().getUuid(), bikeUuid);
 
         updateBikeFromRequest(request, bike);
@@ -75,7 +75,7 @@ public class BikeServiceImpl implements BikeService {
     public BaseResponse deleteBike(UUID bikeUuid) {
         log.info("Start the process of deleting bike with UUID: [{}]", bikeUuid);
 
-        Bike bike = findBikeOrElseThrow(bikeUuid);
+        Bike bike = findBikeWithUserOrElseThrow(bikeUuid);
         validateBikeOwner(bike.getUser().getUuid(), bikeUuid);
 
         bikeRepository.delete(bike);
@@ -84,7 +84,8 @@ public class BikeServiceImpl implements BikeService {
         return new BaseResponse(S00000);
     }
 
-    private Bike findBikeOrElseThrow(UUID bikeUuid) {
+    @Override
+    public Bike findBikeWithUserOrElseThrow(UUID bikeUuid) {
         return bikeRepository.findBikeWithUserByUuid(bikeUuid)
                              .orElseThrow(() -> {
                                  log.error("Bike with UUID: [{}] not found", bikeUuid);

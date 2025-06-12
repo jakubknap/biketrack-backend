@@ -45,5 +45,5 @@ public class Token extends DateAuditEntity {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    public User user;
+    private User user;
 }

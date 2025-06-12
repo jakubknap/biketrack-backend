@@ -3,6 +3,7 @@ package pl.biketrack.bike.service;
 import pl.biketrack.bike.dto.request.CreateBikeRequest;
 import pl.biketrack.bike.dto.request.UpdateBikeRequest;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
+import pl.biketrack.bike.model.Bike;
 import pl.biketrack.exception.dto.response.BaseResponse;
 
 import java.util.UUID;
@@ -16,4 +17,6 @@ public interface BikeService {
     BaseResponse updateBike(UpdateBikeRequest request);
 
     BaseResponse deleteBike(UUID bikeUuid);
+
+    Bike findBikeWithUserOrElseThrow(UUID bikeUuid);
 }

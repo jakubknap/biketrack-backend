@@ -1,6 +1,5 @@
 package pl.biketrack.user.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -16,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.biketrack.bike.model.Bike;
 import pl.biketrack.common.entity.auditable.DateAuditEntity;
+import pl.biketrack.repair.model.Repair;
 import pl.biketrack.token.model.Token;
 import pl.biketrack.user.enumerated.Role;
 import pl.biketrack.user.enumerated.UserStatus;
@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
 
 @Getter
@@ -58,11 +59,14 @@ public class User extends DateAuditEntity implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = REMOVE, orphanRemoval = true)
+    private List<Token> tokens = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = REMOVE, orphanRemoval = true)
     private List<Bike> bikes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Token> tokens = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = REMOVE, orphanRemoval = true)
+    private List<Repair> repairs = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

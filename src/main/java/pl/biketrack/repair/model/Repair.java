@@ -1,26 +1,26 @@
-package pl.biketrack.bike.model;
+package pl.biketrack.repair.model;
 
+import com.neovisionaries.i18n.CurrencyCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import pl.biketrack.bike.model.Bike;
 import pl.biketrack.common.entity.auditable.FullAuditEntity;
-import pl.biketrack.repair.model.Repair;
 import pl.biketrack.user.model.User;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import static jakarta.persistence.CascadeType.REMOVE;
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 
 @Getter
@@ -30,33 +30,28 @@ import static jakarta.persistence.FetchType.LAZY;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Bike extends FullAuditEntity {
+public class Repair extends FullAuditEntity {
 
     @Column(nullable = false, unique = true, updatable = false)
     private UUID uuid;
 
     @Column(nullable = false)
-    private String name;
-
-    private String brand;
-
-    private String model;
-
-    @Column(nullable = false)
-    private String type;
-
-    private LocalDate purchaseDate;
-
-    private String serialNumber;
-
-    private String mileageKm;
+    private String title;
 
     private String description;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private BigDecimal cost;
 
-    @OneToMany(mappedBy = "bike", cascade = REMOVE, orphanRemoval = true)
-    private List<Repair> repairs = new ArrayList<>();
+    @Enumerated(STRING)
+    private CurrencyCode currency;
+
+    private LocalDate repairDate;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "bike_id", nullable = false, updatable = false)
+    private Bike bike;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    private User user;
 }

@@ -67,7 +67,11 @@ public enum ResponseCode {
 
     // BIKE ERRORS
     E05000("Bike not found", NOT_FOUND),
-    E05001("Logged in user is not the owner of the bike", UNPROCESSABLE_ENTITY);
+    E05001("Logged in user is not the owner of the bike", UNPROCESSABLE_ENTITY),
+
+    // REPAIR ERRORS
+    E06000("Repair not found", NOT_FOUND),
+    E06001("Logged in user is not the owner of the repair", UNPROCESSABLE_ENTITY);
 
     private final String message;
     private final HttpStatus httpStatus;
