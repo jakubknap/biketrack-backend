@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,4 +55,9 @@ public class Repair extends FullAuditEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private User user;
+
+    @Transient
+    public UUID getUserUuid() {
+        return user.getUuid();
+    }
 }

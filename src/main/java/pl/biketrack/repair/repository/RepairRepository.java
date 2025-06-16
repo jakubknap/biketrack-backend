@@ -4,7 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import pl.biketrack.repair.dto.UserRepairStatisticsDto;
+import pl.biketrack.bike.dto.response.BikeRepairResponse;
+import pl.biketrack.repair.dto.RepairStatisticsDto;
 import pl.biketrack.repair.dto.response.RepairDetailsResponse;
 import pl.biketrack.repair.dto.response.RepairListResponse;
 import pl.biketrack.repair.model.Repair;
@@ -42,7 +43,7 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
     Optional<Repair> findRepairWithUserByUuid(UUID repairUuid);
 
     @Query("""
-            SELECT new pl.biketrack.repair.dto.UserRepairStatisticsDto(
+            SELECT new pl.biketrack.repair.dto.RepairStatisticsDto(
             r.cost,
             r.currency,
             r.createdDate
@@ -50,7 +51,18 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
             FROM Repair r
             WHERE r.user.uuid = :userUuid
             """)
-    List<UserRepairStatisticsDto> getUserRepairStatisticsDto(UUID userUuid);
+    List<RepairStatisticsDto> getRepairStatisticsDtoForUser(UUID userUuid);
+
+    @Query("""
+            SELECT new pl.biketrack.repair.dto.RepairStatisticsDto(
+            r.cost,
+            r.currency,
+            r.createdDate
+            )
+            FROM Repair r
+            WHERE r.bike.uuid = :bikeUuid
+            """)
+    List<RepairStatisticsDto> getRepairStatisticsDtoForBike(UUID bikeUuid);
 
     @Query("""
             SELECT new pl.biketrack.repair.dto.response.RepairListResponse(
@@ -63,4 +75,15 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
             WHERE r.user.uuid = :userUuid
             """)
     Page<RepairListResponse> getRepairList(Pageable pageable, UUID userUuid);
+
+    @Query("""
+            SELECT new pl.biketrack.bike.dto.response.BikeRepairResponse(
+            r.uuid,
+            r.title,
+            r.createdDate
+            )
+            FROM Repair r
+            WHERE r.bike.uuid = :bikeUuid
+            """)
+    Page<BikeRepairResponse> getRepairsByBike(Pageable pageable, UUID bikeUuid);
 }

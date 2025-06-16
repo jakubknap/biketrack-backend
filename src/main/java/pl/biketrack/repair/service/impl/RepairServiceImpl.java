@@ -82,7 +82,7 @@ public class RepairServiceImpl implements RepairService {
 
         Repair repair = findRepairOrElseThrow(repairUuid);
 
-        validateRepairOwner(repair.getUser().getUuid(), repairUuid);
+        validateRepairOwner(repair.getUserUuid(), repairUuid);
 
         updateRepairFromRequest(repair, request);
         repairRepository.save(repair);
@@ -97,7 +97,7 @@ public class RepairServiceImpl implements RepairService {
 
         Repair repair = findRepairOrElseThrow(repairUuid);
 
-        validateRepairOwner(repair.getUser().getUuid(), repairUuid);
+        validateRepairOwner(repair.getUserUuid(), repairUuid);
 
         repairRepository.delete(repair);
 

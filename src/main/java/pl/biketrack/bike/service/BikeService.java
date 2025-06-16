@@ -5,6 +5,8 @@ import pl.biketrack.bike.dto.request.CreateBikeRequest;
 import pl.biketrack.bike.dto.request.UpdateBikeRequest;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
 import pl.biketrack.bike.dto.response.BikeListResponse;
+import pl.biketrack.bike.dto.response.BikeRepairResponse;
+import pl.biketrack.bike.dto.response.BikeRepairStatisticsResponse;
 import pl.biketrack.bike.model.Bike;
 import pl.biketrack.common.dto.PageResponse;
 import pl.biketrack.exception.dto.response.BaseResponse;
@@ -18,6 +20,10 @@ public interface BikeService {
     BaseResponse createBike(CreateBikeRequest request);
 
     BikeDetailsResponse getBike(UUID bikeUuid);
+
+    PageResponse<BikeRepairResponse> getBikeRepairs(UUID bikeUuid, Pageable pageable);
+
+    BikeRepairStatisticsResponse getBikeStatistics(UUID bikeUuid);
 
     BaseResponse updateBike(UpdateBikeRequest request);
 

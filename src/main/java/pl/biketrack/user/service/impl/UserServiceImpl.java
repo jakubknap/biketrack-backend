@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.biketrack.bike.repository.BikeRepository;
 import pl.biketrack.exception.dto.response.BaseResponse;
 import pl.biketrack.exception.exception.ServiceException;
-import pl.biketrack.repair.dto.UserRepairStatisticsDto;
+import pl.biketrack.repair.dto.RepairStatisticsDto;
 import pl.biketrack.repair.repository.RepairRepository;
 import pl.biketrack.security.util.SecurityUtils;
 import pl.biketrack.token.repository.TokenRepository;
@@ -95,9 +95,9 @@ public class UserServiceImpl implements UserService {
         log.info("Start the process of getting user statistics for user with UUID: [{}]", userUuid);
 
         long totalBikes = bikeRepository.countByUserUuid(userUuid);
-        List<UserRepairStatisticsDto> userRepairStatisticsDto = repairRepository.getUserRepairStatisticsDto(userUuid);
+        List<RepairStatisticsDto> repairStatisticsDto = repairRepository.getRepairStatisticsDtoForUser(userUuid);
 
-        return mapToUserStatisticsResponse(totalBikes, userRepairStatisticsDto);
+        return mapToUserStatisticsResponse(totalBikes, repairStatisticsDto);
     }
 
     @Override

@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,4 +60,9 @@ public class Bike extends FullAuditEntity {
 
     @OneToMany(mappedBy = "bike", cascade = REMOVE, orphanRemoval = true)
     private List<Repair> repairs = new ArrayList<>();
+
+    @Transient
+    public UUID getUserUuid() {
+        return user.getUuid();
+    }
 }

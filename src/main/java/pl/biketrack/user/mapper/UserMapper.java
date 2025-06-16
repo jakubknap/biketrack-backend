@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import pl.biketrack.authentication.dto.request.RegisterRequest;
-import pl.biketrack.repair.dto.UserRepairStatisticsDto;
+import pl.biketrack.repair.dto.RepairStatisticsDto;
 import pl.biketrack.user.dto.response.UserDetailsResponse;
 import pl.biketrack.user.dto.response.UserStatisticsResponse;
 import pl.biketrack.user.enumerated.Role;
@@ -17,11 +17,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import static pl.biketrack.repair.dto.UserRepairStatisticsDto.getAverageRepairCost;
-import static pl.biketrack.repair.dto.UserRepairStatisticsDto.getLastRepairDate;
-import static pl.biketrack.repair.dto.UserRepairStatisticsDto.getRepairsCurrency;
-import static pl.biketrack.repair.dto.UserRepairStatisticsDto.getTotalRepairCost;
-import static pl.biketrack.repair.dto.UserRepairStatisticsDto.getTotalRepairs;
+import static pl.biketrack.repair.dto.RepairStatisticsDto.getAverageRepairCost;
+import static pl.biketrack.repair.dto.RepairStatisticsDto.getLastRepairDate;
+import static pl.biketrack.repair.dto.RepairStatisticsDto.getRepairsCurrency;
+import static pl.biketrack.repair.dto.RepairStatisticsDto.getTotalRepairCost;
+import static pl.biketrack.repair.dto.RepairStatisticsDto.getTotalRepairs;
 
 @Component
 @RequiredArgsConstructor
@@ -48,12 +48,12 @@ public class UserMapper {
                                        user.getCreatedDate());
     }
 
-    public static UserStatisticsResponse mapToUserStatisticsResponse(long totalBikes, List<UserRepairStatisticsDto> userRepairStatisticsDto) {
-        long totalRepairs = getTotalRepairs(userRepairStatisticsDto);
-        BigDecimal totalRepairCost = getTotalRepairCost(userRepairStatisticsDto);
+    public static UserStatisticsResponse mapToUserStatisticsResponse(long totalBikes, List<RepairStatisticsDto> repairStatisticsDtoList) {
+        long totalRepairs = getTotalRepairs(repairStatisticsDtoList);
+        BigDecimal totalRepairCost = getTotalRepairCost(repairStatisticsDtoList);
         BigDecimal averageRepairCost = getAverageRepairCost(totalRepairs, totalRepairCost);
-        LocalDateTime lastRepairDate = getLastRepairDate(userRepairStatisticsDto);
-        CurrencyCode currency = getRepairsCurrency(userRepairStatisticsDto);
+        LocalDateTime lastRepairDate = getLastRepairDate(repairStatisticsDtoList);
+        CurrencyCode currency = getRepairsCurrency(repairStatisticsDtoList);
 
         return new UserStatisticsResponse(totalBikes,
                                           totalRepairs,

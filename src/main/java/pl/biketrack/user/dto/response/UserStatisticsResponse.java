@@ -10,6 +10,6 @@ public record UserStatisticsResponse(
         long totalRepairs,
         BigDecimal totalRepairCost,
         BigDecimal averageRepairCost,
-        CurrencyCode currency,
+        CurrencyCode repairsCurrency,
         LocalDateTime lastRepairDate
 ) {}

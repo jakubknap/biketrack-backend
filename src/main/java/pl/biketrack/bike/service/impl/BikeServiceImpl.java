@@ -9,18 +9,24 @@ import pl.biketrack.bike.dto.request.CreateBikeRequest;
 import pl.biketrack.bike.dto.request.UpdateBikeRequest;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
 import pl.biketrack.bike.dto.response.BikeListResponse;
+import pl.biketrack.bike.dto.response.BikeRepairResponse;
+import pl.biketrack.bike.dto.response.BikeRepairStatisticsResponse;
 import pl.biketrack.bike.model.Bike;
 import pl.biketrack.bike.repository.BikeRepository;
 import pl.biketrack.bike.service.BikeService;
 import pl.biketrack.common.dto.PageResponse;
 import pl.biketrack.exception.dto.response.BaseResponse;
 import pl.biketrack.exception.exception.ServiceException;
+import pl.biketrack.repair.dto.RepairStatisticsDto;
+import pl.biketrack.repair.repository.RepairRepository;
 import pl.biketrack.security.util.SecurityUtils;
 import pl.biketrack.user.model.User;
 
+import java.util.List;
 import java.util.UUID;
 
 import static pl.biketrack.bike.mapper.BikeMapper.buildBike;
+import static pl.biketrack.bike.mapper.BikeMapper.mapToBikeRepairStatisticsResponse;
 import static pl.biketrack.bike.mapper.BikeMapper.updateBikeFromRequest;
 import static pl.biketrack.common.enumerated.ResponseCode.E05000;
 import static pl.biketrack.common.enumerated.ResponseCode.E05001;
@@ -33,13 +39,14 @@ import static pl.biketrack.common.enumerated.ResponseCode.S00003;
 public class BikeServiceImpl implements BikeService {
 
     private final BikeRepository bikeRepository;
+    private final RepairRepository repairRepository;
 
     @Override
     public PageResponse<BikeListResponse> getBikeList(Pageable pageable) {
         UUID userUuid = SecurityUtils.getLoggedUserUUID();
         log.info("Start the process of getting bike list for user with UUID: [{}]", userUuid);
-        Page<BikeListResponse> page = bikeRepository.getBikeList(pageable, userUuid);
-        return PageResponse.of(page);
+        Page<BikeListResponse> bikeList = bikeRepository.getBikeList(pageable, userUuid);
+        return PageResponse.of(bikeList);
     }
 
     @Override
@@ -69,12 +76,35 @@ public class BikeServiceImpl implements BikeService {
     }
 
     @Override
+    public PageResponse<BikeRepairResponse> getBikeRepairs(UUID bikeUuid, Pageable pageable) {
+        log.info("Start the process of getting repairs for bike with UUID: [{}]", bikeUuid);
+
+        Bike bike = findBikeWithUserOrElseThrow(bikeUuid);
+        validateBikeOwner(bike.getUserUuid(), bikeUuid);
+
+        Page<BikeRepairResponse> repairs = repairRepository.getRepairsByBike(pageable, bikeUuid);
+        return PageResponse.of(repairs);
+    }
+
+    @Override
+    public BikeRepairStatisticsResponse getBikeStatistics(UUID bikeUuid) {
+        log.info("Start the process of retrieving a bike statistics for bike with UUID: [{}]", bikeUuid);
+
+        Bike bike = findBikeWithUserOrElseThrow(bikeUuid);
+        validateBikeOwner(bike.getUserUuid(), bikeUuid);
+
+        List<RepairStatisticsDto> repairStatisticsDto = repairRepository.getRepairStatisticsDtoForBike(bikeUuid);
+
+        return mapToBikeRepairStatisticsResponse(repairStatisticsDto);
+    }
+
+    @Override
     public BaseResponse updateBike(UpdateBikeRequest request) {
         UUID bikeUuid = request.bikeUuid();
         log.info("Start the process of updating bike with UUID: [{}]", bikeUuid);
 
         Bike bike = findBikeWithUserOrElseThrow(bikeUuid);
-        validateBikeOwner(bike.getUser().getUuid(), bikeUuid);
+        validateBikeOwner(bike.getUserUuid(), bikeUuid);
 
         updateBikeFromRequest(request, bike);
         bikeRepository.save(bike);
@@ -88,7 +118,7 @@ public class BikeServiceImpl implements BikeService {
         log.info("Start the process of deleting bike with UUID: [{}]", bikeUuid);
 
         Bike bike = findBikeWithUserOrElseThrow(bikeUuid);
-        validateBikeOwner(bike.getUser().getUuid(), bikeUuid);
+        validateBikeOwner(bike.getUserUuid(), bikeUuid);
 
         bikeRepository.delete(bike);
 

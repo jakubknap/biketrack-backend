@@ -17,6 +17,8 @@ import pl.biketrack.bike.dto.request.CreateBikeRequest;
 import pl.biketrack.bike.dto.request.UpdateBikeRequest;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
 import pl.biketrack.bike.dto.response.BikeListResponse;
+import pl.biketrack.bike.dto.response.BikeRepairResponse;
+import pl.biketrack.bike.dto.response.BikeRepairStatisticsResponse;
 import pl.biketrack.bike.service.BikeService;
 import pl.biketrack.common.dto.PageResponse;
 import pl.biketrack.exception.dto.response.BaseResponse;
@@ -47,6 +49,17 @@ public class BikeController {
     @GetMapping("/{bikeUuid}")
     public BikeDetailsResponse getBike(@PathVariable UUID bikeUuid) {
         return bikeService.getBike(bikeUuid);
+    }
+
+    @GetMapping("/{bikeUuid}/repairs")
+    public PageResponse<BikeRepairResponse> getBikeRepairs(@PathVariable UUID bikeUuid,
+                                                           @PageableDefault(size = 2, sort = "createdDate", direction = DESC) Pageable pageable) {
+        return bikeService.getBikeRepairs(bikeUuid, pageable);
+    }
+
+    @GetMapping("/{bikeUuid}/statistics")
+    public BikeRepairStatisticsResponse getBikeStatistics(@PathVariable UUID bikeUuid) {
+        return bikeService.getBikeStatistics(bikeUuid);
     }
 
     @PutMapping
