@@ -58,6 +58,22 @@ public abstract class BaseTokenServiceImpl implements TokenService {
         throw new RuntimeException("Unsupported operation");
     }
 
+    protected final Token findTokenWithUserOrElseThrow(String token) {
+        return tokenRepository.findTokenWithUserByToken(token)
+                              .orElseThrow(() -> {
+                                  log.error("Token: [{}] not found", token);
+                                  return new ServiceException(E04000);
+                              });
+    }
+
+    protected final void validateTokenType(TokenType providedTokenType, String token) {
+        TokenType expectedTokenType = getTokenType();
+        if (expectedTokenType != providedTokenType) {
+            log.error("Token type is invalid for this operation. Expected token type is: [{}], provided: [{}]. Token: [{}]", expectedTokenType, providedTokenType, token);
+            throw new ServiceException(E04003);
+        }
+    }
+
     private Token buildToken(User user) {
         return Token.builder()
                     .token(UUID.randomUUID().toString())
@@ -68,27 +84,11 @@ public abstract class BaseTokenServiceImpl implements TokenService {
                     .build();
     }
 
-    private Token findTokenWithUserOrElseThrow(String token) {
-        return tokenRepository.findTokenWithUserByToken(token)
-                              .orElseThrow(() -> {
-                                  log.error("Token: [{}] not found", token);
-                                  return new ServiceException(E04000);
-                              });
-    }
-
     private void validateToken(String token, Token tokenEntity) {
         validateTokenType(tokenEntity.getTokenType(), token);
         validateTokenStatus(tokenEntity.isRevoked(), token);
         validateTokenUsage(tokenEntity.getUsedAt(), token);
         validateTokenExpiration(tokenEntity.getExpiresAt(), token);
-    }
-
-    private void validateTokenType(TokenType providedTokenType, String token) {
-        TokenType expectedTokenType = getTokenType();
-        if (expectedTokenType != providedTokenType) {
-            log.error("Token type is invalid for this operation. Expected token type is: [{}], provided: [{}]. Token: [{}]", expectedTokenType, providedTokenType, token);
-            throw new ServiceException(E04003);
-        }
     }
 
     private void validateTokenStatus(boolean revoked, String token) {

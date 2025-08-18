@@ -15,6 +15,9 @@ import org.springframework.validation.annotation.Validated;
 public class FrontendProperties {
 
     @NotBlank
+    private String baseUrl;
+
+    @NotBlank
     private String activationAccountUrl;
 
     @NotBlank
