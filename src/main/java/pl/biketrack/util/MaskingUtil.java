@@ -13,11 +13,15 @@ public class MaskingUtil {
         }
 
         int atIndex = input.indexOf('@');
-        if (atIndex < 0) {
+        if (atIndex <= 0) {
             return "***";
         }
 
-        String maskedPart = input.substring(0, 2) + "*".repeat(atIndex - 2);
+        int visibleChars = Math.min(2, atIndex);
+
+        int maskLength = Math.max(1, atIndex - visibleChars);
+
+        String maskedPart = input.substring(0, visibleChars) + "*".repeat(maskLength);
         return maskedPart + input.substring(atIndex);
     }
 }

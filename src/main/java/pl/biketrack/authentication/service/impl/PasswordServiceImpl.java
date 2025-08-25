@@ -16,6 +16,7 @@ import pl.biketrack.properties.FrontendProperties;
 import pl.biketrack.token.enumerated.TokenType;
 import pl.biketrack.token.model.Token;
 import pl.biketrack.token.repository.TokenRepository;
+import pl.biketrack.token.service.TokenService;
 import pl.biketrack.token.service.TokenServiceFactory;
 import pl.biketrack.user.model.User;
 import pl.biketrack.user.repository.UserRepository;
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
 import static pl.biketrack.common.enumerated.ResponseCode.E03004;
 import static pl.biketrack.common.enumerated.ResponseCode.E03005;
 import static pl.biketrack.common.enumerated.ResponseCode.S00000;
+import static pl.biketrack.util.MaskingUtil.maskEmail;
 import static pl.biketrack.util.StringUtil.notEquals;
 
 @Slf4j
@@ -43,7 +45,14 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public BaseResponse resetPasswordRequest(ResetPasswordRequest request) {
-        User user = userService.getUserByEmail(request.email());
+        User user;
+
+        try {
+            user = userService.getUserByEmail(request.email());
+        } catch (ServiceException ex) {
+            log.warn("Password reset requested for non-existing account [{}]. Responding with generic message for security reasons.", maskEmail(request.email()));
+            return new BaseResponse(ResponseCode.S00000);
+        }
 
         sendPasswordResetLink(user);
 
@@ -65,8 +74,12 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     private void sendPasswordResetLink(User user) {
-        String passwordResetToken = tokenServiceFactory.getTokenService(TokenType.PASSWORD_RESET_TOKEN)
-                                                       .generateToken(user);
+        TokenService tokenService = tokenServiceFactory.getTokenService(TokenType.PASSWORD_RESET_TOKEN);
+
+        tokenService.revokeAllUserTokensByType(user.getUuid());
+
+        String passwordResetToken = tokenService.generateToken(user);
+
         mailService.sendMail(new ResetPasswordMail(user.getEmail(), user.getNickname(), frontendProperties.prepareResetPasswordLink(passwordResetToken)));
     }
 

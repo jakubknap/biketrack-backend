@@ -91,14 +91,14 @@ public abstract class BaseTokenServiceImpl implements TokenService {
         validateTokenExpiration(tokenEntity.getExpiresAt(), token);
     }
 
-    private void validateTokenStatus(boolean revoked, String token) {
+    protected void validateTokenStatus(boolean revoked, String token) {
         if (revoked) {
             log.error("Token: [{}] is revoked", token);
             throw new ServiceException(E04002);
         }
     }
 
-    private void validateTokenUsage(LocalDateTime usageDate, String token) {
+    protected void validateTokenUsage(LocalDateTime usageDate, String token) {
         if (nonNull(usageDate)) {
             log.error("Token: [{}] has already been used", token);
             throw new ServiceException(E04004);

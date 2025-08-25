@@ -15,12 +15,10 @@ import pl.biketrack.token.model.Token;
 import pl.biketrack.token.repository.TokenRepository;
 import pl.biketrack.user.enumerated.UserStatus;
 import pl.biketrack.user.model.User;
-import pl.biketrack.user.service.UserService;
 
 import java.time.Duration;
 import java.util.UUID;
 
-import static java.util.Objects.nonNull;
 import static pl.biketrack.common.enumerated.ResponseCode.E03003;
 import static pl.biketrack.common.enumerated.ResponseCode.S00000;
 
@@ -29,15 +27,15 @@ import static pl.biketrack.common.enumerated.ResponseCode.S00000;
 public class ActivationAccountTokenServiceImpl extends BaseTokenServiceImpl {
 
     private final TokenProperties tokenProperties;
-    private final UserService userService;
     private final FrontendProperties frontendProperties;
     private final MailService mailService;
 
-    public ActivationAccountTokenServiceImpl(TokenRepository tokenRepository, TokenProperties tokenProperties, UserService userService, FrontendProperties frontendProperties,
+    public ActivationAccountTokenServiceImpl(TokenRepository tokenRepository,
+                                             TokenProperties tokenProperties,
+                                             FrontendProperties frontendProperties,
                                              MailService mailService) {
         super(tokenRepository);
         this.tokenProperties = tokenProperties;
-        this.userService = userService;
         this.frontendProperties = frontendProperties;
         this.mailService = mailService;
     }
@@ -55,7 +53,7 @@ public class ActivationAccountTokenServiceImpl extends BaseTokenServiceImpl {
     @Override
     @Transactional
     public BaseResponse resendToken(ResendTokenRequest request) {
-        User user = getUser(request);
+        User user = validateTokenAndGetUser(request);
 
         validateUserStatus(user.getStatus(), user.getUuid());
 
@@ -68,15 +66,13 @@ public class ActivationAccountTokenServiceImpl extends BaseTokenServiceImpl {
         return new BaseResponse(S00000);
     }
 
-    private User getUser(ResendTokenRequest request) {
-        if (nonNull(request.email())) {
-            return userService.getUserByEmail(request.email());
-        }
-
+    private User validateTokenAndGetUser(ResendTokenRequest request) {
         String token = request.expiredToken().toString();
 
         Token tokenEntity = findTokenWithUserOrElseThrow(token);
         validateTokenType(tokenEntity.getTokenType(), token);
+        validateTokenStatus(tokenEntity.isRevoked(), token);
+        validateTokenUsage(tokenEntity.getUsedAt(), token);
 
         return tokenEntity.getUser();
     }

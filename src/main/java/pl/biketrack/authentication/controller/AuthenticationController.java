@@ -76,7 +76,7 @@ public class AuthenticationController {
     @PostMapping("/resend-token")
     public BaseResponse resendToken(@Valid @RequestBody ResendTokenRequest request) {
         TokenType tokenType = request.tokenType();
-        log.info("Start resending user token: [{}] for user with e-mail: [{}]", tokenType, maskEmail(request.email()));
+        log.info("Start resending token: [{}] for user with expired token: [{}]", tokenType, request.expiredToken());
         return tokenServiceFactory.getTokenService(tokenType)
                                   .resendToken(request);
     }
