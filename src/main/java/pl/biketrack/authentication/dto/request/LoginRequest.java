@@ -1,13 +1,14 @@
 package pl.biketrack.authentication.dto.request;
 
-import pl.biketrack.validation.Email;
-import pl.biketrack.validation.Password;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 public record LoginRequest(
 
+        @NotBlank
         @Email
         String email,
 
-        @Password
+        @NotBlank
         String password
 ) {}

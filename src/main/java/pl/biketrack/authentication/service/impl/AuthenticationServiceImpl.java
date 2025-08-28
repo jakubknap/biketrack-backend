@@ -156,7 +156,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String email = request.email();
         User user = userService.getUserByEmail(email);
 
-        if (user.getStatus().isNotActive()) {
+        if (user.getStatus() == UserStatus.REGISTERED) {
             log.error("User with UUID: [{}] does not have an active account. Cannot authenticate", user.getUuid());
             throw new ServiceException(E03002);
         }
