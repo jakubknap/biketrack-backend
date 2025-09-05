@@ -54,9 +54,8 @@ application:
     base-url: http://localhost:4200
     activation-account-url: ${application.frontend.base-url}/active-account
     reset-password-url: ${application.frontend.base-url}/reset-password
-#  file:
-#    upload:
-#      photos-output-path: ./uploads
+  file:
+    upload-path: ./uploads
 
 logging:
   level:

@@ -71,7 +71,11 @@ public enum ResponseCode {
 
     // REPAIR ERRORS
     E06000("Repair not found", NOT_FOUND),
-    E06001("Logged in user is not the owner of the repair", UNPROCESSABLE_ENTITY);
+    E06001("Logged in user is not the owner of the repair", UNPROCESSABLE_ENTITY),
+
+    E07000("File write error", INTERNAL_SERVER_ERROR),
+    E07001("File not found", NOT_FOUND),
+    E07002("The file cannot be loaded", INTERNAL_SERVER_ERROR);
 
     private final String message;
     private final HttpStatus httpStatus;

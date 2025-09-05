@@ -1,6 +1,7 @@
 package pl.biketrack.bike.service;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 import pl.biketrack.bike.dto.request.CreateBikeRequest;
 import pl.biketrack.bike.dto.request.UpdateBikeRequest;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
@@ -17,7 +18,7 @@ public interface BikeService {
 
     PageResponse<BikeListResponse> getBikeList(Pageable pageable);
 
-    BaseResponse createBike(CreateBikeRequest request);
+    BaseResponse createBike(CreateBikeRequest request, MultipartFile bikePhoto);
 
     BikeDetailsResponse getBike(UUID bikeUuid);
 

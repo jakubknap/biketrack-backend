@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import pl.biketrack.bike.dto.request.CreateBikeRequest;
 import pl.biketrack.bike.dto.request.UpdateBikeRequest;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
@@ -42,8 +44,9 @@ public class BikeController {
     }
 
     @PostMapping
-    public BaseResponse createBike(@RequestBody @Valid CreateBikeRequest request) {
-        return bikeService.createBike(request);
+    public BaseResponse createBike(@RequestPart("bikeData") @Valid CreateBikeRequest request,
+                                   @RequestPart(value = "bikePhoto", required = false) MultipartFile bikePhoto) {
+        return bikeService.createBike(request, bikePhoto);
     }
 
     @GetMapping("/{bikeUuid}")
