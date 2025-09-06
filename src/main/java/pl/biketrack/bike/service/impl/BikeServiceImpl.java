@@ -156,7 +156,7 @@ public class BikeServiceImpl implements BikeService {
     private void handleAddingPhoto(MultipartFile bikePhoto, User user, Bike bike) {
         if (nonNull(bikePhoto) && !bikePhoto.isEmpty()) {
             fileValidator.validate(bikePhoto, "bikePhoto", FileType.IMAGE);
-            String fileName = fileStorageService.saveFile(bikePhoto, user.getUuid(), BIKES, "bikePhoto");
+            UUID fileName = fileStorageService.saveFile(bikePhoto, user.getUuid(), BIKES, "bikePhoto");
             bike.setPhotoFileName(fileName);
         }
     }

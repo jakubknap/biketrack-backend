@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.biketrack.file.enumerated.FileDirectory;
 import pl.biketrack.file.service.FileStorageService;
 
+import java.util.UUID;
+
 import static pl.biketrack.common.constant.Urls.FILES_URL;
 
 @Slf4j
@@ -21,15 +23,15 @@ public class FileController {
 
     private final FileStorageService fileStorageService;
 
-    @GetMapping("/images/{fileName:.+}")
-    public ResponseEntity<Resource> getImage(@PathVariable String fileName) {
-        log.info("Get image for file: {}", fileName);
-        return fileStorageService.serveFile(fileName, FileDirectory.BIKES, true);
+    @GetMapping("/{fileUuid}/inline")
+    public ResponseEntity<Resource> getFileInline(@PathVariable UUID fileUuid) {
+        log.info("Start serving file inline with UUID: [{}]", fileUuid);
+        return fileStorageService.serveFile(fileUuid, FileDirectory.BIKES, true);
     }
 
-    @GetMapping("/download/{fileName:.+}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
-        log.info("Download file: {}", fileName);
-        return fileStorageService.serveFile(fileName, FileDirectory.BIKES, false);
+    @GetMapping("/{fileUuid}/download")
+    public ResponseEntity<Resource> downloadFile(@PathVariable UUID fileUuid) {
+        log.info("Start downloading file with UUID: [{}]", fileUuid);
+        return fileStorageService.serveFile(fileUuid, FileDirectory.BIKES, false);
     }
 }

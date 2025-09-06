@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface FileStorageService {
 
-    String saveFile(MultipartFile file, UUID userUuid, FileDirectory fileDirectory, String fileFieldName);
+    UUID saveFile(MultipartFile file, UUID userUuid, FileDirectory fileDirectory, String fileFieldName);
 
-    ResponseEntity<Resource> serveFile(String fileName, FileDirectory directory, boolean inline);
+    ResponseEntity<Resource> serveFile(UUID fileUuid, FileDirectory fileDirectory, boolean inline);
 }

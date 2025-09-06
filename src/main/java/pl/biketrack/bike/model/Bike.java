@@ -54,7 +54,7 @@ public class Bike extends FullAuditEntity {
 
     private String description;
 
-    private String photoFileName;
+    private UUID photoFileName;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id", nullable = false)
