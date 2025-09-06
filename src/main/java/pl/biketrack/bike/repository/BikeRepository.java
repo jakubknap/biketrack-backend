@@ -49,7 +49,8 @@ public interface BikeRepository extends JpaRepository<Bike, Long> {
     @Query("""
             SELECT new pl.biketrack.bike.dto.response.BikeListResponse(
             b.uuid,
-            b.name
+            b.name,
+            b.photoFileName
             )
             FROM Bike b
             WHERE b.user.uuid = :userUuid
