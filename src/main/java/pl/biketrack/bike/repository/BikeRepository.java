@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
 import pl.biketrack.bike.dto.response.BikeListResponse;
 import pl.biketrack.bike.model.Bike;
+import pl.biketrack.dashboard.dto.RecentlyAddedBikeDto;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,4 +58,12 @@ public interface BikeRepository extends JpaRepository<Bike, Long> {
             WHERE b.user.uuid = :userUuid
             """)
     Page<BikeListResponse> getBikeList(Pageable pageable, UUID userUuid);
+
+    @Query("""
+            SELECT NEW pl.biketrack.dashboard.dto.RecentlyAddedBikeDto(b.name, b.uuid)
+            FROM Bike b
+            WHERE b.user.uuid = :userUuid
+            ORDER BY b.createdDate DESC
+            """)
+    List<RecentlyAddedBikeDto> findRecentlyAddedBikeByUserUuid(UUID userUuid);
 }

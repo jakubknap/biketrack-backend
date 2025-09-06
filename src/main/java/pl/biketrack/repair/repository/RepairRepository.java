@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import pl.biketrack.bike.dto.response.BikeRepairResponse;
+import pl.biketrack.dashboard.dto.RecentlyAddedRepairDto;
 import pl.biketrack.repair.dto.RepairStatisticsDto;
 import pl.biketrack.repair.dto.response.RepairDetailsResponse;
 import pl.biketrack.repair.dto.response.RepairListResponse;
@@ -86,4 +87,12 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
             WHERE r.bike.uuid = :bikeUuid
             """)
     Page<BikeRepairResponse> getRepairsByBike(Pageable pageable, UUID bikeUuid);
+
+    @Query("""
+            SELECT new pl.biketrack.dashboard.dto.RecentlyAddedRepairDto(r.title, r.cost, r.currency)
+            FROM Repair r
+            WHERE r.user.uuid = :userUuid
+            ORDER BY r.createdDate DESC
+            """)
+    RecentlyAddedRepairDto findRecentlyAddedRepairByUserUuid(UUID userUuid);
 }

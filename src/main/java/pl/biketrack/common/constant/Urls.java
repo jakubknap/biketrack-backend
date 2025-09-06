@@ -8,5 +8,6 @@ public class Urls {
     public static final String USERS_URL = BASE_URL + "/users";
     public static final String BIKES_URL = BASE_URL + "/bikes";
     public static final String REPAIRS_URL = BASE_URL + "/repairs";
+    public static final String DASHBOARD_URL = BASE_URL + "/dashboard";
     public static final String FILES_URL = BASE_URL + "/files";
 }
