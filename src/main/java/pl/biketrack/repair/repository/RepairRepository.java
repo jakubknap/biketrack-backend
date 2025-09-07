@@ -89,7 +89,7 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
     Page<BikeRepairResponse> getRepairsByBike(Pageable pageable, UUID bikeUuid);
 
     @Query("""
-            SELECT new pl.biketrack.dashboard.dto.RecentlyAddedRepairDto(r.title, r.cost, r.currency)
+            SELECT new pl.biketrack.dashboard.dto.RecentlyAddedRepairDto(r.uuid, r.title, r.cost, r.currency)
             FROM Repair r
             WHERE r.user.uuid = :userUuid
             ORDER BY r.createdDate DESC
