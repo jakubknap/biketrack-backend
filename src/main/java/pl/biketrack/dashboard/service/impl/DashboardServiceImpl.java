@@ -52,7 +52,10 @@ public class DashboardServiceImpl implements DashboardService {
 
         RecentlyAddedRepairDto recentlyAddedRepair = null;
         if (totalRepairs > 0) {
-            recentlyAddedRepair = repairRepository.findRecentlyAddedRepairByUserUuid(userUuid);
+            recentlyAddedRepair = repairRepository.findRecentlyAddedRepairByUserUuid(userUuid)
+                                                  .stream()
+                                                  .findFirst()
+                                                  .orElse(null);
         }
 
         return DashboardStatisticsResponse.builder()

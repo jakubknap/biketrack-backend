@@ -1,6 +1,7 @@
 package pl.biketrack.bike.dto.response;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record BikeDetailsResponse(
@@ -13,5 +14,8 @@ public record BikeDetailsResponse(
         String serialNumber,
         String mileageKm,
         String description,
-        UUID userUuid
+        UUID photoFileName,
+        UUID userUuid,
+        LocalDateTime createdDate,
+        LocalDateTime lastModifiedDate
 ) {}

@@ -29,7 +29,7 @@ public class RepairMapper {
         repair.setTitle(request.title())
               .setDescription(request.description())
               .setCost(request.cost())
-              .setCurrency(repair.getCurrency())
-              .setRepairDate(repair.getRepairDate());
+              .setCurrency(request.currency())
+              .setRepairDate(request.repairDate());
     }
 }

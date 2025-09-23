@@ -6,6 +6,7 @@ import pl.biketrack.bike.dto.request.CreateBikeRequest;
 import pl.biketrack.bike.dto.request.UpdateBikeRequest;
 import pl.biketrack.bike.dto.response.BikeRepairStatisticsResponse;
 import pl.biketrack.bike.model.Bike;
+import pl.biketrack.dashboard.dto.MoneyDto;
 import pl.biketrack.repair.dto.RepairStatisticsDto;
 import pl.biketrack.user.model.User;
 
@@ -62,11 +63,10 @@ public class BikeMapper {
         long repairsInYear = getRepairsInYear(repairStatisticsDtoList, Year.now().getValue());
 
         return new BikeRepairStatisticsResponse(totalRepairs,
-                                                totalRepairCost,
-                                                repairsCurrency,
+                                                new MoneyDto(totalRepairCost, repairsCurrency),
                                                 dateOfLastRepair,
                                                 dateOfFirstRepair,
-                                                averageRepairCost,
+                                                new MoneyDto(averageRepairCost, repairsCurrency),
                                                 repairsInYear);
     }
 }

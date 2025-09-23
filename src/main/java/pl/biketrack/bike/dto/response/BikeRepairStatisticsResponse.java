@@ -1,16 +1,14 @@
 package pl.biketrack.bike.dto.response;
 
-import com.neovisionaries.i18n.CurrencyCode;
+import pl.biketrack.dashboard.dto.MoneyDto;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record BikeRepairStatisticsResponse(
         long totalRepairs,
-        BigDecimal totalRepairCost,
-        CurrencyCode repairsCurrency,
+        MoneyDto totalRepairCost,
         LocalDateTime dateOfLastRepair,
         LocalDateTime dateOfFirstRepair,
-        BigDecimal averageRepairCost,
+        MoneyDto averageRepairCost,
         long repairsThisYear
 ) {}

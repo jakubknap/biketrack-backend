@@ -21,6 +21,7 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
             SELECT new pl.biketrack.repair.dto.response.RepairDetailsResponse(
             r.uuid,
             r.bike.uuid,
+            r.bike.name,
             r.user.uuid,
             r.title,
             r.description,
@@ -69,10 +70,14 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
             SELECT new pl.biketrack.repair.dto.response.RepairListResponse(
             r.uuid,
             r.title,
-            r.repairDate,
-            r.createdDate
+            r.createdDate,
+            r.cost,
+            r.currency,
+            b.uuid,
+            b.name
             )
             FROM Repair r
+            JOIN r.bike b
             WHERE r.user.uuid = :userUuid
             """)
     Page<RepairListResponse> getRepairList(Pageable pageable, UUID userUuid);
@@ -81,6 +86,8 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
             SELECT new pl.biketrack.bike.dto.response.BikeRepairResponse(
             r.uuid,
             r.title,
+            r.cost,
+            r.currency,
             r.createdDate
             )
             FROM Repair r
@@ -94,5 +101,5 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
             WHERE r.user.uuid = :userUuid
             ORDER BY r.createdDate DESC
             """)
-    RecentlyAddedRepairDto findRecentlyAddedRepairByUserUuid(UUID userUuid);
+    List<RecentlyAddedRepairDto> findRecentlyAddedRepairByUserUuid(UUID userUuid);
 }
