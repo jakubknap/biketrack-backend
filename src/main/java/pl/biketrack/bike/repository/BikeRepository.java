@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import pl.biketrack.bike.dto.response.BikeDetailsResponse;
 import pl.biketrack.bike.dto.response.BikeListResponse;
+import pl.biketrack.bike.dto.response.BikeSelectListResponse;
 import pl.biketrack.bike.model.Bike;
 import pl.biketrack.dashboard.dto.RecentlyAddedBikeDto;
 
@@ -34,12 +35,23 @@ public interface BikeRepository extends JpaRepository<Bike, Long> {
             b.serialNumber,
             b.mileageKm,
             b.description,
-            b.user.uuid
+            b.photoUuid,
+            b.user.uuid,
+            b.createdDate,
+            b.lastModifiedDate
             )
             FROM Bike b
             WHERE b.uuid = :bikeUuid
             """)
     Optional<BikeDetailsResponse> getBikeDetails(UUID bikeUuid);
+
+    @Query("""
+            SELECT new pl.biketrack.bike.dto.response.BikeSelectListResponse(b.uuid, b.name)
+            FROM Bike b
+            WHERE b.user.uuid = :userUuid
+            """)
+    List<BikeSelectListResponse> getBikeList(UUID userUuid);
+
 
     @Query("""
             SELECT COUNT(b)
@@ -52,7 +64,7 @@ public interface BikeRepository extends JpaRepository<Bike, Long> {
             SELECT new pl.biketrack.bike.dto.response.BikeListResponse(
             b.uuid,
             b.name,
-            b.photoFileName
+            b.photoUuid
             )
             FROM Bike b
             WHERE b.user.uuid = :userUuid

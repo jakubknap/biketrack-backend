@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,10 +20,12 @@ import pl.biketrack.bike.dto.response.BikeDetailsResponse;
 import pl.biketrack.bike.dto.response.BikeListResponse;
 import pl.biketrack.bike.dto.response.BikeRepairResponse;
 import pl.biketrack.bike.dto.response.BikeRepairStatisticsResponse;
+import pl.biketrack.bike.dto.response.BikeSelectListResponse;
 import pl.biketrack.bike.service.BikeService;
 import pl.biketrack.common.dto.PageResponse;
 import pl.biketrack.exception.dto.response.BaseResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -41,6 +42,11 @@ public class BikeController {
     @GetMapping
     public PageResponse<BikeListResponse> getBikeList(@PageableDefault(size = 2, sort = "createdDate", direction = DESC) Pageable pageable) {
         return bikeService.getBikeList(pageable);
+    }
+
+    @GetMapping("/select-list")
+    public List<BikeSelectListResponse> getUserBikes() {
+        return bikeService.getUserBikes();
     }
 
     @PostMapping
@@ -66,8 +72,9 @@ public class BikeController {
     }
 
     @PutMapping
-    public BaseResponse updateBike(@RequestBody @Valid UpdateBikeRequest request) {
-        return bikeService.updateBike(request);
+    public BaseResponse updateBike(@RequestPart("bikeData") @Valid UpdateBikeRequest request,
+                                   @RequestPart(value = "bikePhoto", required = false) MultipartFile bikePhoto) {
+        return bikeService.updateBike(request, bikePhoto);
     }
 
     @DeleteMapping("/{bikeUuid}")

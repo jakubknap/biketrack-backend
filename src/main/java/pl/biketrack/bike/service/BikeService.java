@@ -8,15 +8,19 @@ import pl.biketrack.bike.dto.response.BikeDetailsResponse;
 import pl.biketrack.bike.dto.response.BikeListResponse;
 import pl.biketrack.bike.dto.response.BikeRepairResponse;
 import pl.biketrack.bike.dto.response.BikeRepairStatisticsResponse;
+import pl.biketrack.bike.dto.response.BikeSelectListResponse;
 import pl.biketrack.bike.model.Bike;
 import pl.biketrack.common.dto.PageResponse;
 import pl.biketrack.exception.dto.response.BaseResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface BikeService {
 
     PageResponse<BikeListResponse> getBikeList(Pageable pageable);
+
+    List<BikeSelectListResponse> getUserBikes();
 
     BaseResponse createBike(CreateBikeRequest request, MultipartFile bikePhoto);
 
@@ -26,7 +30,7 @@ public interface BikeService {
 
     BikeRepairStatisticsResponse getBikeStatistics(UUID bikeUuid);
 
-    BaseResponse updateBike(UpdateBikeRequest request);
+    BaseResponse updateBike(UpdateBikeRequest request, MultipartFile bikePhoto);
 
     BaseResponse deleteBike(UUID bikeUuid);
 

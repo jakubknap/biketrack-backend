@@ -1,7 +1,9 @@
 package pl.biketrack.repair.model;
 
 import com.neovisionaries.i18n.CurrencyCode;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
@@ -19,6 +21,8 @@ import pl.biketrack.user.model.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static jakarta.persistence.EnumType.STRING;
@@ -47,6 +51,11 @@ public class Repair extends FullAuditEntity {
     private CurrencyCode currency;
 
     private LocalDate repairDate;
+
+    @ElementCollection
+    @CollectionTable(name = "repair_photos", joinColumns = @JoinColumn(name = "repair_id"))
+    @Column(name = "photo_uuid")
+    private List<UUID> photoUuids = new ArrayList<>();
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "bike_id", nullable = false, updatable = false)

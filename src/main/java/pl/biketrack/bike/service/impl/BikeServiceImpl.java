@@ -12,6 +12,7 @@ import pl.biketrack.bike.dto.response.BikeDetailsResponse;
 import pl.biketrack.bike.dto.response.BikeListResponse;
 import pl.biketrack.bike.dto.response.BikeRepairResponse;
 import pl.biketrack.bike.dto.response.BikeRepairStatisticsResponse;
+import pl.biketrack.bike.dto.response.BikeSelectListResponse;
 import pl.biketrack.bike.model.Bike;
 import pl.biketrack.bike.repository.BikeRepository;
 import pl.biketrack.bike.service.BikeService;
@@ -60,6 +61,12 @@ public class BikeServiceImpl implements BikeService {
     }
 
     @Override
+    public List<BikeSelectListResponse> getUserBikes() {
+        UUID userUuid = SecurityUtils.getLoggedUserUUID();
+        return bikeRepository.getBikeList(userUuid);
+    }
+
+    @Override
     public BaseResponse createBike(CreateBikeRequest request, MultipartFile bikePhoto) {
         User user = SecurityUtils.getLoggedUser();
         log.info("Start the process of adding a new bike: [{}], for user with UUID: [{}]", request, user.getUuid());
@@ -70,6 +77,7 @@ public class BikeServiceImpl implements BikeService {
         bikeRepository.save(bike);
 
         log.info("Successfully completed the process of adding a new bike - assigned UUID: [{}], for user with UUID: [{}]", bike.getUuid(), user.getUuid());
+
         return new BaseResponse(S00003);
     }
 
@@ -115,7 +123,7 @@ public class BikeServiceImpl implements BikeService {
     }
 
     @Override
-    public BaseResponse updateBike(UpdateBikeRequest request) {
+    public BaseResponse updateBike(UpdateBikeRequest request, MultipartFile bikePhoto) {
         UUID bikeUuid = request.bikeUuid();
         log.info("Start the process of updating bike with UUID: [{}]", bikeUuid);
 
@@ -157,7 +165,7 @@ public class BikeServiceImpl implements BikeService {
         if (nonNull(bikePhoto) && !bikePhoto.isEmpty()) {
             fileValidator.validate(bikePhoto, "bikePhoto", FileType.IMAGE);
             UUID fileName = fileStorageService.saveFile(bikePhoto, user.getUuid(), BIKES, "bikePhoto");
-            bike.setPhotoFileName(fileName);
+            bike.setPhotoUuid(fileName);
         }
     }
 
