@@ -1,13 +1,12 @@
 package pl.biketrack.repair.model;
 
 import com.neovisionaries.i18n.CurrencyCode;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
 
 @Getter
@@ -52,10 +53,9 @@ public class Repair extends FullAuditEntity {
 
     private LocalDate repairDate;
 
-    @ElementCollection
-    @CollectionTable(name = "repair_photos", joinColumns = @JoinColumn(name = "repair_id"))
-    @Column(name = "photo_uuid")
-    private List<UUID> photoUuids = new ArrayList<>();
+    @Builder.Default
+    @OneToMany(mappedBy = "repair", cascade = ALL, orphanRemoval = true, fetch = EAGER)
+    private List<RepairPhoto> photos = new ArrayList<>();
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "bike_id", nullable = false, updatable = false)

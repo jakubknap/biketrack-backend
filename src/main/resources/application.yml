@@ -16,7 +16,8 @@ spring:
     table: flyway_schema_history
   servlet:
     multipart:
-      max-file-size: 50MB
+      max-file-size: 100MB
+      max-request-size: 1000MB
   mail:
     host: localhost
     port: 1025
@@ -56,6 +57,9 @@ application:
     reset-password-url: ${application.frontend.base-url}/reset-password
   file:
     upload-path: ./uploads
+    max-file-size: 10485760 # 10 MB
+    max-total-size: 104857600 # 100 MB
+    max-files-per-request: 10
 
 logging:
   level:

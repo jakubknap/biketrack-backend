@@ -20,7 +20,7 @@ public interface RepairService {
 
     RepairDetailsResponse getRepair(UUID repairUuid);
 
-    BaseResponse updateRepair(UpdateRepairRequest request, List<MultipartFile> repairPhotos);
+    BaseResponse updateRepair(UpdateRepairRequest request, List<MultipartFile> newPhotos, List<MultipartFile> updatedPhotos);
 
     BaseResponse deleteRepair(UUID repairUuid);
 }

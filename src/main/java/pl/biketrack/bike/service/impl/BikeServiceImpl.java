@@ -132,6 +132,8 @@ public class BikeServiceImpl implements BikeService {
         validateBikeOwner(bike.getUserUuid(), bikeUuid);
 
         updateBikeFromRequest(request, bike);
+        handleUpdatingPhoto(request.deletePhoto(), bike, bikePhoto);
+
         bikeRepository.save(bike);
 
         log.info("Successfully completed the process of editing bike with UUID: [{}]", bike.getUuid());
@@ -167,6 +169,14 @@ public class BikeServiceImpl implements BikeService {
             UUID fileName = fileStorageService.saveFile(bikePhoto, user.getUuid(), BIKES, "bikePhoto");
             bike.setPhotoUuid(fileName);
         }
+    }
+
+    private void handleUpdatingPhoto(boolean deletePhoto, Bike bike, MultipartFile bikePhoto) {
+        if (deletePhoto) {
+            bike.setPhotoUuid(null);
+            return;
+        }
+        handleAddingPhoto(bikePhoto, bike.getUser(), bike);
     }
 
     private void validateBikeOwner(UUID bikeOwnerUuid, UUID bikeUuid) {

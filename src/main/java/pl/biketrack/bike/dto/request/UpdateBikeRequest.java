@@ -35,5 +35,7 @@ public record UpdateBikeRequest(
         String mileageKm,
 
         @SafeText
-        String description
+        String description,
+
+        boolean deletePhoto
 ) {}

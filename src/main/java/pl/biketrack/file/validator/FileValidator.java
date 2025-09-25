@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static pl.biketrack.common.enumerated.ResponseCode.E00000;
 import static pl.biketrack.file.enumerated.FileType.IMAGE;
 
@@ -38,12 +39,12 @@ public class FileValidator {
             throw new CustomValidationException(E00000, List.of(new BaseApiValidationError(fileFieldName, "must be a valid file type")));
         }
 
-//        long fileSize = file.getSize();
-//        Long maxFileSize = fileStorageProperties.getMaxFileSize();
-//        if (fileSize > maxFileSize) {
-//            log.error("File is too large. File size: [{}], max allowed size: [{}]", fileSize, maxFileSize);
-//            throw new CustomValidationException(E00000, List.of(new BaseApiValidationError(fileFieldName, "file is too large")));
-//        }
+        long fileSize = file.getSize();
+        Long maxFileSize = fileStorageProperties.getMaxFileSize();
+        if (nonNull(maxFileSize) && fileSize > maxFileSize) {
+            log.error("File is too large. File size: [{}], max allowed size: [{}]", fileSize, maxFileSize);
+            throw new CustomValidationException(E00000, List.of(new BaseApiValidationError(fileFieldName, "file is too large")));
+        }
 
         String fileName = file.getOriginalFilename();
         String fileExtension = getFileExtension(fileName);
@@ -54,10 +55,31 @@ public class FileValidator {
         }
     }
 
+    public void validateAll(List<MultipartFile> files, String fileFieldName, FileType expectedFileType) {
+        int maxFiles = fileStorageProperties.getMaxFilesPerRequest();
+        if (files.size() > maxFiles) {
+            log.error("Too many files. Count: [{}], max allowed: [{}]", files.size(), maxFiles);
+            throw new CustomValidationException(E00000, List.of(new BaseApiValidationError(fileFieldName, "too many files")));
+        }
+
+        long totalSize = 0;
+        Long maxTotalSize = fileStorageProperties.getMaxTotalSize();
+
+        for (MultipartFile file : files) {
+            validate(file, fileFieldName, expectedFileType);
+
+            totalSize += file.getSize();
+            if (nonNull(maxTotalSize) && totalSize > maxTotalSize) {
+                log.error("Total files size too large. Current: [{}], max allowed: [{}]", totalSize, maxTotalSize);
+                throw new CustomValidationException(E00000, List.of(new BaseApiValidationError(fileFieldName, "total files size is too large")));
+            }
+        }
+    }
+
     private boolean isValidFileType(String fileType, FileType expectedFileType) {
         List<String> allowedExtensions = ALLOWED_EXTENSIONS.get(expectedFileType);
 
-        if (allowedExtensions == null) {
+        if (isNull(allowedExtensions)) {
             return false;
         }
 

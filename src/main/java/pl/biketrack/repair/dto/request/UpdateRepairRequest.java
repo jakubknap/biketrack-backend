@@ -10,6 +10,7 @@ import pl.biketrack.validation.SupportedCurrencies;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static com.neovisionaries.i18n.CurrencyCode.PLN;
@@ -33,5 +34,7 @@ public record UpdateRepairRequest(
         @SupportedCurrencies(supportedCurrencies = {PLN})
         CurrencyCode currency,
 
-        LocalDate repairDate
+        LocalDate repairDate,
+
+        List<UUID> deletedPhotoUuids
 ) {}

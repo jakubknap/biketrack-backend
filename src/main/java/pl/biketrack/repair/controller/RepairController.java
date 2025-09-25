@@ -54,8 +54,9 @@ public class RepairController {
 
     @PutMapping
     public BaseResponse updateRepair(@RequestPart("repairData") @Valid UpdateRepairRequest request,
-                                     @RequestPart(value = "repairPhotos", required = false) List<MultipartFile> repairPhotos) {
-        return repairService.updateRepair(request, repairPhotos);
+                                     @RequestPart(value = "newPhotos", required = false) List<MultipartFile> newPhotos,
+                                     @RequestPart(value = "updatedPhotos", required = false) List<MultipartFile> updatedPhotos) {
+        return repairService.updateRepair(request, newPhotos, updatedPhotos);
     }
 
     @DeleteMapping("/{repairUuid}")
