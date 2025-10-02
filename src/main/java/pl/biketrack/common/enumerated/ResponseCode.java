@@ -75,7 +75,8 @@ public enum ResponseCode {
 
     E07000("File write error", INTERNAL_SERVER_ERROR),
     E07001("File not found", NOT_FOUND),
-    E07002("The file cannot be loaded", INTERNAL_SERVER_ERROR);
+    E07002("The file cannot be loaded", INTERNAL_SERVER_ERROR),
+    E07003("The file cannot be deleted", INTERNAL_SERVER_ERROR);
 
     private final String message;
     private final HttpStatus httpStatus;

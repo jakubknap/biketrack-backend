@@ -23,6 +23,8 @@ import pl.biketrack.file.enumerated.FileType;
 import pl.biketrack.file.service.FileStorageService;
 import pl.biketrack.file.validator.FileValidator;
 import pl.biketrack.repair.dto.RepairStatisticsDto;
+import pl.biketrack.repair.model.Repair;
+import pl.biketrack.repair.model.RepairPhoto;
 import pl.biketrack.repair.repository.RepairRepository;
 import pl.biketrack.security.util.SecurityUtils;
 import pl.biketrack.user.model.User;
@@ -39,6 +41,7 @@ import static pl.biketrack.common.enumerated.ResponseCode.E05001;
 import static pl.biketrack.common.enumerated.ResponseCode.S00000;
 import static pl.biketrack.common.enumerated.ResponseCode.S00003;
 import static pl.biketrack.file.enumerated.FileDirectory.BIKES;
+import static pl.biketrack.file.enumerated.FileDirectory.REPAIRS;
 
 @Slf4j
 @Service
@@ -72,7 +75,7 @@ public class BikeServiceImpl implements BikeService {
         log.info("Start the process of adding a new bike: [{}], for user with UUID: [{}]", request, user.getUuid());
 
         Bike bike = buildBike(request, user);
-        handleAddingPhoto(bikePhoto, user, bike);
+        handleAddingPhoto(bikePhoto, bike);
 
         bikeRepository.save(bike);
 
@@ -132,7 +135,10 @@ public class BikeServiceImpl implements BikeService {
         validateBikeOwner(bike.getUserUuid(), bikeUuid);
 
         updateBikeFromRequest(request, bike);
-        handleUpdatingPhoto(request.deletePhoto(), bike, bikePhoto);
+
+        fileStorageService.deleteFile(bike.getPhotoUuid(), BIKES);
+        bike.setPhotoUuid(null);
+        handleAddingPhoto(bikePhoto, bike);
 
         bikeRepository.save(bike);
 
@@ -144,9 +150,19 @@ public class BikeServiceImpl implements BikeService {
     public BaseResponse deleteBike(UUID bikeUuid) {
         log.info("Start the process of deleting bike with UUID: [{}]", bikeUuid);
 
-        Bike bike = findBikeWithUserOrElseThrow(bikeUuid);
+        Bike bike = findBikeWithUserAndRepairsByUuidOrElseThrow(bikeUuid);
 
         validateBikeOwner(bike.getUserUuid(), bikeUuid);
+
+        for (Repair repair : bike.getRepairs()) {
+            List<UUID> repairPhotosUuids = repair.getPhotos()
+                                                 .stream()
+                                                 .map(RepairPhoto::getUuid)
+                                                 .toList();
+
+            fileStorageService.deleteFiles(repairPhotosUuids, REPAIRS);
+            repair.getPhotos().clear();
+        }
 
         bikeRepository.delete(bike);
 
@@ -163,20 +179,20 @@ public class BikeServiceImpl implements BikeService {
                              });
     }
 
-    private void handleAddingPhoto(MultipartFile bikePhoto, User user, Bike bike) {
-        if (nonNull(bikePhoto) && !bikePhoto.isEmpty()) {
-            fileValidator.validate(bikePhoto, "bikePhoto", FileType.IMAGE);
-            UUID fileName = fileStorageService.saveFile(bikePhoto, user.getUuid(), BIKES, "bikePhoto");
-            bike.setPhotoUuid(fileName);
-        }
+    private Bike findBikeWithUserAndRepairsByUuidOrElseThrow(UUID bikeUuid) {
+        return bikeRepository.findBikeWithUserAndRepairsByUuid(bikeUuid)
+                             .orElseThrow(() -> {
+                                 log.error("Bike with UUID: [{}] not found", bikeUuid);
+                                 return new ServiceException(E05000);
+                             });
     }
 
-    private void handleUpdatingPhoto(boolean deletePhoto, Bike bike, MultipartFile bikePhoto) {
-        if (deletePhoto) {
-            bike.setPhotoUuid(null);
-            return;
+    private void handleAddingPhoto(MultipartFile bikePhoto, Bike bike) {
+        if (nonNull(bikePhoto) && !bikePhoto.isEmpty()) {
+            fileValidator.validate(bikePhoto, "bikePhoto", FileType.IMAGE);
+            UUID photoUuid = fileStorageService.saveFile(bikePhoto, bike.getUser().getUuid(), BIKES, "bikePhoto");
+            bike.setPhotoUuid(photoUuid);
         }
-        handleAddingPhoto(bikePhoto, bike.getUser(), bike);
     }
 
     private void validateBikeOwner(UUID bikeOwnerUuid, UUID bikeUuid) {

@@ -6,13 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import pl.biketrack.bike.dto.response.BikeSelectListResponse;
 import pl.biketrack.bike.model.Bike;
 import pl.biketrack.bike.service.BikeService;
 import pl.biketrack.common.dto.PageResponse;
 import pl.biketrack.common.enumerated.ResponseCode;
-import pl.biketrack.exception.dto.BaseApiValidationError;
+import pl.biketrack.dashboard.dto.MoneyDto;
 import pl.biketrack.exception.dto.response.BaseResponse;
-import pl.biketrack.exception.exception.CustomValidationException;
 import pl.biketrack.exception.exception.ServiceException;
 import pl.biketrack.file.enumerated.FileType;
 import pl.biketrack.file.service.FileStorageService;
@@ -30,9 +30,7 @@ import pl.biketrack.user.model.User;
 import java.util.List;
 import java.util.UUID;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static pl.biketrack.common.enumerated.ResponseCode.E00000;
 import static pl.biketrack.common.enumerated.ResponseCode.E05001;
 import static pl.biketrack.common.enumerated.ResponseCode.E06000;
 import static pl.biketrack.common.enumerated.ResponseCode.E06001;
@@ -82,19 +80,29 @@ public class RepairServiceImpl implements RepairService {
     @Override
     public RepairDetailsResponse getRepair(UUID repairUuid) {
         log.info("Start the process of retrieving a repair details for repair with UUID: [{}]", repairUuid);
-        RepairDetailsResponse repairDetailsResponse = repairRepository.getRepairDetails(repairUuid)
-                                                                      .orElseThrow(() -> {
-                                                                          log.error("Repair with UUID: [{}] not found", repairUuid);
-                                                                          return new ServiceException(E06000);
-                                                                      });
+        Repair repair = findRepairWithUserAndBikeOrElseThrow(repairUuid);
 
-        validateRepairOwner(repairDetailsResponse.userUuid(), repairUuid);
+        validateRepairOwner(repair.getUserUuid(), repairUuid);
 
-        return repairDetailsResponse;
+        Bike bike = repair.getBike();
+        List<UUID> repairPhotos = repair.getPhotos()
+                                        .stream()
+                                        .map(RepairPhoto::getUuid)
+                                        .toList();
+
+        return new RepairDetailsResponse(repair.getUuid(),
+                                         new BikeSelectListResponse(bike.getUuid(), bike.getName()),
+                                         repair.getTitle(),
+                                         repair.getDescription(),
+                                         new MoneyDto(repair.getCost(), repair.getCurrency()),
+                                         repair.getRepairDate(),
+                                         repair.getCreatedDate(),
+                                         repair.getLastModifiedDate(),
+                                         repairPhotos);
     }
 
     @Override
-    public BaseResponse updateRepair(UpdateRepairRequest request, List<MultipartFile> newPhotos, List<MultipartFile> updatedPhotos) {
+    public BaseResponse updateRepair(UpdateRepairRequest request, List<MultipartFile> repairPhotos) {
         UUID repairUuid = request.repairUuid();
         log.info("Start the process of updating repair with UUID: [{}]", repairUuid);
 
@@ -103,7 +111,8 @@ public class RepairServiceImpl implements RepairService {
         validateRepairOwner(repair.getUserUuid(), repairUuid);
 
         updateRepairFromRequest(repair, request);
-        handlePhotos(request, newPhotos, updatedPhotos, repair);
+
+        handlePhotos(repairPhotos, repair);
 
         repairRepository.save(repair);
 
@@ -119,10 +128,30 @@ public class RepairServiceImpl implements RepairService {
 
         validateRepairOwner(repair.getUserUuid(), repairUuid);
 
+        List<UUID> repairPhotosUuids = repair.getPhotos()
+                                             .stream()
+                                             .map(RepairPhoto::getUuid)
+                                             .toList();
+        fileStorageService.deleteFiles(repairPhotosUuids, REPAIRS);
+        repair.getPhotos().clear();
+
         repairRepository.delete(repair);
 
         log.info("Successfully completed the process of deleting repair with UUID: [{}]", repairUuid);
         return new BaseResponse(S00000);
+    }
+
+    @Override
+    public List<UUID> getRepairPhotos(UUID repairUuid) {
+        log.info("Start the process of retrieving repair photos for repair with UUID: [{}]", repairUuid);
+
+        Repair repair = findRepairOrElseThrow(repairUuid);
+        validateRepairOwner(repair.getUserUuid(), repairUuid);
+
+        return repair.getPhotos()
+                     .stream()
+                     .map(RepairPhoto::getUuid)
+                     .toList();
     }
 
     private void validateBikeOwner(UUID bikeOwnerUuid, UUID bikeUuid) {
@@ -150,54 +179,6 @@ public class RepairServiceImpl implements RepairService {
         }
     }
 
-    private void handlePhotos(UpdateRepairRequest request, List<MultipartFile> newPhotos, List<MultipartFile> updatedPhotos, Repair repair) {
-        if (nonNull(request.deletedPhotoUuids())) {
-            repair.getPhotos().removeIf(photo -> request.deletedPhotoUuids().contains(photo.getUuid()));
-        }
-
-        if (nonNull(newPhotos)) {
-            if (repair.getPhotos().size() >= 10 || (repair.getPhotos().size() + newPhotos.size()) >= 10) {
-                throw new CustomValidationException(E00000, List.of(new BaseApiValidationError("newPhotos", "photo limit has been reached")));
-            }
-
-            for (MultipartFile repairPhoto : newPhotos) {
-                fileValidator.validate(repairPhoto, "newPhotos", FileType.IMAGE);
-                UUID fileName = fileStorageService.saveFile(repairPhoto, getLoggedUserUUID(), REPAIRS, "newPhotos");
-
-                RepairPhoto photo = new RepairPhoto();
-                photo.setUuid(fileName);
-                photo.setRepair(repair);
-
-                repair.getPhotos().add(photo);
-            }
-        }
-
-        if (nonNull(updatedPhotos)) {
-            fileValidator.validateAll(updatedPhotos, "updatedPhotos", FileType.IMAGE);
-
-            for (MultipartFile file : updatedPhotos) {
-
-                String originalName = file.getOriginalFilename();
-                if (isNull(originalName) || !originalName.contains("_")) {
-                    throw new CustomValidationException(E00000, List.of(new BaseApiValidationError("updatedPhotos", "filename must contain uuid prefix")));
-                }
-
-                String uuidPart = originalName.substring(0, originalName.indexOf("_"));
-                UUID photoUuid = UUID.fromString(uuidPart);
-
-                RepairPhoto existingPhoto = repair.getPhotos()
-                                                  .stream()
-                                                  .filter(p -> p.getUuid().equals(photoUuid))
-                                                  .findFirst()
-                                                  .orElseThrow(() -> new CustomValidationException(E00000,
-                                                                                                   List.of(new BaseApiValidationError("updatedPhotos", "photo not found"))));
-
-                UUID newFileUuid = fileStorageService.saveFile(file, getLoggedUserUUID(), REPAIRS, "newPhotos");
-                existingPhoto.setUuid(newFileUuid);
-            }
-        }
-    }
-
     private void validateRepairOwner(UUID repairOwnerUuid, UUID repairUuid) {
         UUID loggedUserUuid = getLoggedUserUUID();
 
@@ -207,8 +188,28 @@ public class RepairServiceImpl implements RepairService {
         }
     }
 
+    private void handlePhotos(List<MultipartFile> repairPhotos, Repair repair) {
+        List<UUID> repairPhotosUuids = repair.getPhotos()
+                                             .stream()
+                                             .map(RepairPhoto::getUuid)
+                                             .toList();
+
+        fileStorageService.deleteFiles(repairPhotosUuids, REPAIRS);
+        repair.getPhotos().clear();
+
+        handleAddingPhotos(repairPhotos, repair);
+    }
+
     private Repair findRepairOrElseThrow(UUID repairUuid) {
         return repairRepository.findRepairWithUserByUuid(repairUuid)
+                               .orElseThrow(() -> {
+                                   log.error("Repair with UUID: [{}] not found", repairUuid);
+                                   return new ServiceException(E06000);
+                               });
+    }
+
+    private Repair findRepairWithUserAndBikeOrElseThrow(UUID repairUuid) {
+        return repairRepository.findRepairWithUserAndBikeByUuid(repairUuid)
                                .orElseThrow(() -> {
                                    log.error("Repair with UUID: [{}] not found", repairUuid);
                                    return new ServiceException(E06000);

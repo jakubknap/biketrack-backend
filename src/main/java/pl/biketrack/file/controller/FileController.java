@@ -23,10 +23,10 @@ public class FileController {
 
     private final FileStorageService fileStorageService;
 
-    @GetMapping("/{fileUuid}/inline")
-    public ResponseEntity<Resource> getFileInline(@PathVariable UUID fileUuid) {
+    @GetMapping("/{fileDirectory}/{fileUuid}/inline")
+    public ResponseEntity<Resource> getFileInline(@PathVariable FileDirectory fileDirectory, @PathVariable UUID fileUuid) {
         log.info("Start serving file inline with UUID: [{}]", fileUuid);
-        return fileStorageService.serveFile(fileUuid, FileDirectory.BIKES, true);
+        return fileStorageService.serveFile(fileUuid, fileDirectory, true);
     }
 
     @GetMapping("/{fileUuid}/download")

@@ -54,13 +54,17 @@ public class RepairController {
 
     @PutMapping
     public BaseResponse updateRepair(@RequestPart("repairData") @Valid UpdateRepairRequest request,
-                                     @RequestPart(value = "newPhotos", required = false) List<MultipartFile> newPhotos,
-                                     @RequestPart(value = "updatedPhotos", required = false) List<MultipartFile> updatedPhotos) {
-        return repairService.updateRepair(request, newPhotos, updatedPhotos);
+                                     @RequestPart(value = "repairPhotos", required = false) List<MultipartFile> repairPhotos) {
+        return repairService.updateRepair(request, repairPhotos);
     }
 
     @DeleteMapping("/{repairUuid}")
     public BaseResponse deleteRepair(@PathVariable UUID repairUuid) {
         return repairService.deleteRepair(repairUuid);
+    }
+
+    @GetMapping("/{repairUuid}/photos")
+    public List<UUID> getRepairPhotos(@PathVariable UUID repairUuid) {
+        return repairService.getRepairPhotos(repairUuid);
     }
 }

@@ -32,6 +32,7 @@ import static pl.biketrack.common.enumerated.ResponseCode.E00000;
 import static pl.biketrack.common.enumerated.ResponseCode.E07000;
 import static pl.biketrack.common.enumerated.ResponseCode.E07001;
 import static pl.biketrack.common.enumerated.ResponseCode.E07002;
+import static pl.biketrack.common.enumerated.ResponseCode.E07003;
 
 @Slf4j
 @Service
@@ -94,6 +95,54 @@ public class FileStorageServiceImpl implements FileStorageService {
                              .contentType(MediaType.parseMediaType(contentType))
                              .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
                              .body(resource);
+    }
+
+    @Override
+    public void deleteFile(UUID fileUuid, FileDirectory fileDirectory) {
+        UUID userUuid = SecurityUtils.getLoggedUserUUID();
+
+        log.info("Start deleting file with UUID: [{}] for user [{}] in directory [{}]", fileUuid, userUuid, fileDirectory.getPath());
+
+        Path userPath = fileStorageProperties.getUploadPath()
+                                             .resolve(userUuid.toString())
+                                             .resolve(fileDirectory.getPath());
+
+        if (!Files.exists(userPath) || !Files.isDirectory(userPath)) {
+            log.error("Directory not found for user with UUID: [{}] in: [{}]", userUuid, fileDirectory.getPath());
+            throw new ServiceException(E07001);
+        }
+
+        try (Stream<Path> files = Files.list(userPath)) {
+            Optional<Path> matchingFile = files.filter(path -> path.getFileName()
+                                                                   .toString()
+                                                                   .startsWith(fileUuid + "."))
+                                               .findFirst();
+
+            if (matchingFile.isEmpty()) {
+                log.error("File not found for UUID: [{}], user with UUID: [{}] in: [{}]", fileUuid, userUuid, fileDirectory.getPath());
+                throw new ServiceException(E07001);
+            }
+
+            Files.delete(matchingFile.get());
+            log.info("Successfully deleted file with UUID: [{}] for user [{}] in directory [{}]", fileUuid, userUuid, fileDirectory.getPath());
+
+        } catch (Exception ex) {
+            log.error("Error deleting file for UUID: [{}], user with UUID: [{}] in: [{}]: {}", fileUuid, userUuid, fileDirectory.getPath(), ex.getMessage(), ex);
+            throw new ServiceException(E07003);
+        }
+
+        log.info("Successfully deleted file: [{}]", fileUuid);
+    }
+
+    @Override
+    public void deleteFiles(List<UUID> fileUuids, FileDirectory fileDirectory) {
+        for (UUID uuid : fileUuids) {
+            try {
+                deleteFile(uuid, fileDirectory);
+            } catch (ServiceException ex) {
+                log.error("Could not delete file with UUID [{}] in [{}]. Skipping. Reason: {}", uuid, fileDirectory.getPath(), ex.getMessage());
+            }
+        }
     }
 
     private void validateFileName(String originalFileName, String fileFieldName) {

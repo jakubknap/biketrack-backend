@@ -25,6 +25,15 @@ public interface BikeRepository extends JpaRepository<Bike, Long> {
     Optional<Bike> findBikeWithUserByUuid(UUID bikeUuid);
 
     @Query("""
+            SELECT b
+            FROM Bike b
+                     JOIN FETCH b.user
+                     JOIN FETCH b.repairs
+            WHERE b.uuid = :bikeUuid
+            """)
+    Optional<Bike> findBikeWithUserAndRepairsByUuid(UUID bikeUuid);
+
+    @Query("""
             SELECT new pl.biketrack.bike.dto.response.BikeDetailsResponse(
             b.uuid,
             b.name,
@@ -51,7 +60,6 @@ public interface BikeRepository extends JpaRepository<Bike, Long> {
             WHERE b.user.uuid = :userUuid
             """)
     List<BikeSelectListResponse> getBikeList(UUID userUuid);
-
 
     @Query("""
             SELECT COUNT(b)
