@@ -25,10 +25,10 @@ public interface BikeRepository extends JpaRepository<Bike, Long> {
     Optional<Bike> findBikeWithUserByUuid(UUID bikeUuid);
 
     @Query("""
-            SELECT b
+            SELECT DISTINCT b
             FROM Bike b
-                     JOIN FETCH b.user
-                     JOIN FETCH b.repairs
+                JOIN FETCH b.user
+                LEFT JOIN FETCH b.repairs
             WHERE b.uuid = :bikeUuid
             """)
     Optional<Bike> findBikeWithUserAndRepairsByUuid(UUID bikeUuid);
@@ -45,9 +45,9 @@ public interface BikeRepository extends JpaRepository<Bike, Long> {
             b.mileageKm,
             b.description,
             b.photoUuid,
-            b.user.uuid,
             b.createdDate,
-            b.lastModifiedDate
+            b.lastModifiedDate,
+            b.user.uuid
             )
             FROM Bike b
             WHERE b.uuid = :bikeUuid

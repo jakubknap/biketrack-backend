@@ -164,6 +164,7 @@ public class BikeServiceImpl implements BikeService {
             repair.getPhotos().clear();
         }
 
+        fileStorageService.deleteFile(bike.getPhotoUuid(), BIKES);
         bikeRepository.delete(bike);
 
         log.info("Successfully completed the process of deleting bike with UUID: [{}]", bike.getUuid());

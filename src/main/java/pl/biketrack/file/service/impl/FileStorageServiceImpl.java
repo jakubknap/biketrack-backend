@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static pl.biketrack.common.enumerated.ResponseCode.E00000;
@@ -99,6 +100,10 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public void deleteFile(UUID fileUuid, FileDirectory fileDirectory) {
+        if (isNull(fileUuid)) {
+            return;
+        }
+
         UUID userUuid = SecurityUtils.getLoggedUserUUID();
 
         log.info("Start deleting file with UUID: [{}] for user [{}] in directory [{}]", fileUuid, userUuid, fileDirectory.getPath());

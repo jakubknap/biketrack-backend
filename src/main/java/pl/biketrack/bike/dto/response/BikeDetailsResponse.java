@@ -1,5 +1,7 @@
 package pl.biketrack.bike.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,8 +16,10 @@ public record BikeDetailsResponse(
         String serialNumber,
         String mileageKm,
         String description,
-        UUID photoFileName,
-        UUID userUuid,
+        UUID photo,
         LocalDateTime createdDate,
-        LocalDateTime lastModifiedDate
+        LocalDateTime lastModifiedDate,
+
+        @JsonIgnore
+        UUID userUuid
 ) {}

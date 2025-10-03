@@ -5,5 +5,5 @@ import java.util.UUID;
 public record BikeListResponse(
         UUID uuid,
         String name,
-        UUID photoFileName
+        UUID photo
 ) {}
