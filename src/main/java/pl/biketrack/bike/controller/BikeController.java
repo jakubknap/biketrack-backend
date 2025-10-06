@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,5 +81,10 @@ public class BikeController {
     @DeleteMapping("/{bikeUuid}")
     public BaseResponse deleteBike(@PathVariable UUID bikeUuid) {
         return bikeService.deleteBike(bikeUuid);
+    }
+
+    @GetMapping("/{bikeUuid}/report")
+    public ResponseEntity<byte[]> generateBikeReport(@PathVariable UUID bikeUuid) {
+        return bikeService.generateBikeReport(bikeUuid);
     }
 }

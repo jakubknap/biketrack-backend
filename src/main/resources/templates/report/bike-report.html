@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Raport roweru - [[${bike.name}]]</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f6f8fb;
+            font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #111827;
+            -webkit-print-color-adjust: exact;
+        }
+
+        @page {
+            margin: 0;
+        }
+
+        body {
+            padding: 7mm 10mm;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+            padding: 20px;
+            margin-bottom: 18px;
+        }
+
+        .report-header {
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: 800;
+            color: #0b66ff;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .title h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .pill {
+            display: inline-block;
+            background-color: #f3f6ff;
+            color: #0b66ff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: 0 2px 6px rgba(11, 102, 255, 0.08);
+        }
+
+        .specs {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .specs td {
+            padding: 4px 0;
+            vertical-align: top;
+        }
+
+        .specs .label {
+            color: #6b7280;
+            width: 180px;
+            font-weight: 600;
+        }
+
+        .specs .value {
+            font-weight: 500;
+        }
+
+        .repair-item {
+            background-color: #fbfdff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+            page-break-inside: avoid;
+            border-left: 4px solid #0b66ff;
+            padding-left: 12px;
+        }
+
+        .repair-header {
+            margin-bottom: 10px;
+        }
+
+        .repair-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0b66ff;
+            margin-bottom: 4px;
+            margin-top: 10px;
+        }
+
+        .repair-info {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .repair-info td {
+            padding: 3px 0;
+            vertical-align: top;
+        }
+
+        .repair-info .label {
+            color: #6b7280;
+            width: 150px;
+            font-weight: 600;
+        }
+
+        .repair-photos {
+            margin-top: 8px;
+        }
+
+        .photo-wrapper {
+            display: inline-block;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        .repair-photo {
+            width: 120px;
+            height: 80px;
+            border-radius: 8px;
+            border: 1px solid #dbeafe;
+            background-color: #f3f6ff;
+            object-fit: cover;
+            display: block;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 20px;
+        }
+
+        @media print {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #f6f8fb;
+                width: 100%;
+                height: 100%;
+            }
+
+            body {
+                padding: 12mm 15mm;
+            }
+
+            .card {
+                box-shadow: none;
+                border-radius: 0;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo">BikeTrack</div>
+
+    <div class="card">
+        <div class="report-header">
+            <table style="width:100%;">
+                <tr>
+                    <td style="text-align:left;">
+                        <div class="title">
+                            <h1>Raport roweru - [[${bike.name}]]</h1>
+                        </div>
+                    </td>
+                    <td style="text-align:right; vertical-align:top;">
+                        <div style="display:inline-block; text-align:center;">
+                            <div style="font-size:12px;color:#6b7280;">Czas wygenerowania</div>
+                            <div class="pill" style="margin-top:2px;">[[${generationTime}]]</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 style="margin:0 0 12px 0;">Informacje o rowerze</h2>
+
+        <table class="specs">
+            <tr>
+                <td class="label">Nazwa roweru:</td>
+                <td class="value">[[${bike.name}]]</td>
+            </tr>
+            <tr>
+                <td class="label">Marka:</td>
+                <td>
+                    <span th:if="${bike.brand}" class="value" th:text="${bike.brand}"></span>
+                    <span th:unless="${bike.brand}" style="color:#9ca3af; font-style:italic;">Brak informacji</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Model:</td>
+                <td>
+                    <span th:if="${bike.model}" class="value" th:text="${bike.model}"></span>
+                    <span th:unless="${bike.model}" style="color:#9ca3af; font-style:italic;">Brak informacji</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Typ:</td>
+                <td class="value">[[${bike.type}]]</td>
+            </tr>
+            <tr>
+                <td class="label">Przebieg:</td>
+                <td>
+                    <span th:if="${bike.mileageKm}" class="value" th:text="${bike.mileageKm} + ' km'"></span>
+                    <span th:unless="${bike.mileageKm}" style="color:#9ca3af; font-style:italic;">Brak informacji</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Numer seryjny:</td>
+                <td>
+                    <span th:if="${bike.serialNumber}" class="value" th:text="${bike.serialNumber}"></span>
+                    <span th:unless="${bike.serialNumber}" style="color:#9ca3af; font-style:italic;">Brak informacji</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Data zakupu:</td>
+                <td>
+                    <span th:if="${bike.purchaseDate}" class="value" th:text="${bike.purchaseDate}"></span>
+                    <span th:unless="${bike.purchaseDate}" style="color:#9ca3af; font-style:italic;">Brak informacji</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Opis:</td>
+                <td>
+                    <span th:if="${bike.description}" class="value" th:text="${bike.description}"></span>
+                    <span th:unless="${bike.description}" style="color:#9ca3af; font-style:italic;">Brak informacji</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2 style="margin:0 0 12px 0;">Historia napraw</h2>
+
+        <div class="repairs-list">
+            <th:block th:if="${bike.repairs != null and !bike.repairs.isEmpty()}" th:each="repair : ${bike.repairs}">
+                <div class="repair-item">
+                    <div class="repair-header">
+                        <div class="repair-title">[[${repair.title}]]</div>
+                    </div>
+
+                    <table class="repair-info">
+                        <tr>
+                            <td class="label">Opis:</td>
+                            <td>
+                                <span th:if="${repair.description}" th:text="${repair.description}"></span>
+                                <span th:unless="${repair.description}" style="color:#9ca3af; font-style:italic;">Brak informacji</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">Koszt:</td>
+                            <td>
+                                <span th:if="${repair.cost != null and repair.currency != null}" th:text="${repair.cost} + ' ' + ${repair.currency}"></span>
+                                <span th:unless="${repair.cost != null and repair.currency != null}" style="color:#9ca3af; font-style:italic;">Brak informacji</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">Data naprawy:</td>
+                            <td>
+                                <span th:if="${repair.repairDate}" th:text="${repair.repairDate}"></span>
+                                <span th:unless="${repair.repairDate}" style="color:#9ca3af; font-style:italic;">Brak informacji</span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="repair-photos" th:if="${repair.photos != null and !repair.photos.isEmpty()}">
+                        <div th:each="photo : ${repair.photos}" class="photo-wrapper">
+                            <img th:src="${photo}" alt="Zdjęcie naprawy" class="repair-photo"/>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+
+            <div th:unless="${bike.repairs != null and !bike.repairs.isEmpty()}" style="color:#9ca3af; font-style:italic;">
+                Brak historii napraw
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Dokument wygenerowany elektronicznie przez system BikeTrack
+    </footer>
+</body>
+</html>

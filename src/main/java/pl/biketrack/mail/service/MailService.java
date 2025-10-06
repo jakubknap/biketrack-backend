@@ -67,7 +67,7 @@ public class MailService {
             Context context = new Context();
             context.setVariables(message.getVariables());
 
-            String htmlContent = templateEngine.process(message.getTemplateName(), context);
+            String htmlContent = templateEngine.process("mail/" + message.getTemplateName(), context);
             helper.setText(htmlContent, true);
 
             mailSender.send(mimeMessage);

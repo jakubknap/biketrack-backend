@@ -20,6 +20,7 @@
         <jjwt.version>0.12.6</jjwt.version>
         <neovisionaries-nv-i18n.version>1.29</neovisionaries-nv-i18n.version>
         <springdoc-openapi.version>2.8.6</springdoc-openapi.version>
+        <itextpdf-html2pdf.version>6.2.1</itextpdf-html2pdf.version>
     </properties>
     <dependencies>
         <dependency>
@@ -92,6 +93,11 @@
             <groupId>com.neovisionaries</groupId>
             <artifactId>nv-i18n</artifactId>
             <version>${neovisionaries-nv-i18n.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>html2pdf</artifactId>
+            <version>${itextpdf-html2pdf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

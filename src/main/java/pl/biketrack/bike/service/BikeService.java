@@ -1,6 +1,7 @@
 package pl.biketrack.bike.service;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import pl.biketrack.bike.dto.request.CreateBikeRequest;
 import pl.biketrack.bike.dto.request.UpdateBikeRequest;
@@ -35,4 +36,6 @@ public interface BikeService {
     BaseResponse deleteBike(UUID bikeUuid);
 
     Bike findBikeWithUserOrElseThrow(UUID bikeUuid);
+
+    ResponseEntity<byte[]> generateBikeReport(UUID bikeUuid);
 }

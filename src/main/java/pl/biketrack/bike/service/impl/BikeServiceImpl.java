@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pl.biketrack.bike.dto.request.CreateBikeRequest;
@@ -17,6 +18,7 @@ import pl.biketrack.bike.model.Bike;
 import pl.biketrack.bike.repository.BikeRepository;
 import pl.biketrack.bike.service.BikeService;
 import pl.biketrack.common.dto.PageResponse;
+import pl.biketrack.converter.PdfConverter;
 import pl.biketrack.exception.dto.response.BaseResponse;
 import pl.biketrack.exception.exception.ServiceException;
 import pl.biketrack.file.enumerated.FileType;
@@ -33,6 +35,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.util.Objects.nonNull;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
+import static org.springframework.http.MediaType.APPLICATION_PDF;
+import static pl.biketrack.bike.dto.BikeReportDto.prepareVariables;
 import static pl.biketrack.bike.mapper.BikeMapper.buildBike;
 import static pl.biketrack.bike.mapper.BikeMapper.mapToBikeRepairStatisticsResponse;
 import static pl.biketrack.bike.mapper.BikeMapper.updateBikeFromRequest;
@@ -52,6 +57,7 @@ public class BikeServiceImpl implements BikeService {
     private final RepairRepository repairRepository;
     private final FileValidator fileValidator;
     private final FileStorageService fileStorageService;
+    private final PdfConverter pdfConverter;
 
     @Override
     public PageResponse<BikeListResponse> getBikeList(Pageable pageable) {
@@ -178,6 +184,24 @@ public class BikeServiceImpl implements BikeService {
                                  log.error("Bike with UUID: [{}] not found", bikeUuid);
                                  return new ServiceException(E05000);
                              });
+    }
+
+    @Override
+    public ResponseEntity<byte[]> generateBikeReport(UUID bikeUuid) {
+        log.info("Start the process of generating a bike report for bike with UUID: [{}]", bikeUuid);
+
+        Bike bike = findBikeWithUserAndRepairsByUuidOrElseThrow(bikeUuid);
+
+        validateBikeOwner(bike.getUserUuid(), bikeUuid);
+
+        byte[] pdf = pdfConverter.generatePdf("bike-report", prepareVariables(bike, fileStorageService));
+
+        final String fileName = "Raport roweru - " + bike.getName() + ".pdf";
+
+        return ResponseEntity.ok()
+                             .header(CONTENT_DISPOSITION, "inline; filename=" + fileName)
+                             .contentType(APPLICATION_PDF)
+                             .body(pdf);
     }
 
     private Bike findBikeWithUserAndRepairsByUuidOrElseThrow(UUID bikeUuid) {
