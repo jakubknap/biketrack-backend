@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.ORIGIN;
 import static org.springframework.http.HttpMethod.DELETE;
@@ -81,6 +82,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(frontendProperties.getBaseUrl()));
         config.setAllowedHeaders(List.of(ORIGIN, CONTENT_TYPE, ACCEPT, AUTHORIZATION));
         config.setAllowedMethods(List.of(GET.name(), POST.name(), DELETE.name(), PUT.name(), PATCH.name()));
+        config.setExposedHeaders(List.of(CONTENT_DISPOSITION));
         source.registerCorsConfiguration("/**", config);
 
         return new CorsFilter(source);
