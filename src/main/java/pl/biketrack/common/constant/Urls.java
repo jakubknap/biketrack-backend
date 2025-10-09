@@ -10,4 +10,5 @@ public class Urls {
     public static final String REPAIRS_URL = BASE_URL + "/repairs";
     public static final String DASHBOARD_URL = BASE_URL + "/dashboard";
     public static final String FILES_URL = BASE_URL + "/files";
+    public static final String STATISTICS_URL = BASE_URL + "/statistics";
 }

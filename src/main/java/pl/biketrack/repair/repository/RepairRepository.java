@@ -9,6 +9,9 @@ import pl.biketrack.dashboard.dto.RecentlyAddedRepairDto;
 import pl.biketrack.repair.dto.RepairStatisticsDto;
 import pl.biketrack.repair.dto.response.RepairListResponse;
 import pl.biketrack.repair.model.Repair;
+import pl.biketrack.statistics.dto.RepairsPerMonthDtoProjection;
+import pl.biketrack.statistics.dto.response.StatisticsResponse.AverageRepairCostPerBikeProjection;
+import pl.biketrack.statistics.dto.response.StatisticsResponse.RepairsPerBikeProjection;
 
 import java.util.List;
 import java.util.Optional;
@@ -91,4 +94,42 @@ public interface RepairRepository extends JpaRepository<Repair, Long> {
             ORDER BY r.createdDate DESC
             """)
     List<RecentlyAddedRepairDto> findRecentlyAddedRepairByUserUuid(UUID userUuid);
+
+    @Query(value = """
+            SELECT b.name   as bikeName,
+                   count(r) as repairs
+            FROM repair r
+                     INNER JOIN public.bike b on b.id = r.bike_id
+                     INNER JOIN public._user u on u.id = b.user_id
+            WHERE u.uuid = :userUuid
+            GROUP BY b.name
+            ORDER BY COUNT(r) DESC
+            """, nativeQuery = true)
+    List<RepairsPerBikeProjection> findRepairsPerBikeByUserUuid(UUID userUuid);
+
+    @Query(value = """
+            SELECT b.name      as bikeName,
+                   AVG(r.cost) as averageCost
+            FROM repair r
+                     INNER JOIN public.bike b on b.id = r.bike_id
+                     INNER JOIN public._user u on u.id = b.user_id
+            WHERE u.uuid = :userUuid
+              AND r.cost IS NOT NULL
+            GROUP BY b.name
+            ORDER BY AVG(r.cost) DESC
+            """, nativeQuery = true)
+    List<AverageRepairCostPerBikeProjection> findAverageRepairCostPerBikeByUserUuid(UUID userUuid);
+
+    @Query(value = """
+            SELECT EXTRACT(MONTH FROM r.repair_date) as monthNumber,
+                   COUNT(r)                          as repairsCount
+            FROM repair r
+                     INNER JOIN public.bike b on b.id = r.bike_id
+                     INNER JOIN public._user u on u.id = b.user_id
+            WHERE u.uuid = :userUuid
+              AND EXTRACT(YEAR FROM r.repair_date) = :year
+            GROUP BY EXTRACT(MONTH FROM r.repair_date)
+            ORDER BY EXTRACT(MONTH FROM r.repair_date)
+            """, nativeQuery = true)
+    List<RepairsPerMonthDtoProjection> countRepairsPerMonthForYearByUserUuidAndYear(UUID userUuid, int year);
 }
