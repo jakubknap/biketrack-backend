@@ -9,7 +9,6 @@ import pl.biketrack.user.dto.request.UpdateUserRequest
 import pl.biketrack.user.model.User
 import pl.biketrack.user.repository.UserRepository
 import spock.lang.Specification
-import spock.lang.Subject
 
 import static java.util.UUID.randomUUID
 import static pl.biketrack.common.enumerated.ResponseCode.E03001
@@ -24,7 +23,6 @@ class UserServiceImplTest extends Specification {
     def userRepository = Mock(UserRepository)
     def passwordEncoder = Mock(PasswordEncoder)
 
-    @Subject
     def userService = new UserServiceImpl(userRepository, passwordEncoder)
 
     def user = new User(uuid: randomUUID(), email: "user@example.com", nickname: "nick", password: "encoded-pass")
