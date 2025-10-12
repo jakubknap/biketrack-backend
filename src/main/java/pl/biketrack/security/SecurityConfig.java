@@ -18,16 +18,8 @@ import pl.biketrack.properties.FrontendProperties;
 
 import java.util.List;
 
-import static org.springframework.http.HttpHeaders.ACCEPT;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.HttpHeaders.ORIGIN;
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.PATCH;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpHeaders.*;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static pl.biketrack.user.enumerated.Role.ADMIN;
 
@@ -36,14 +28,13 @@ import static pl.biketrack.user.enumerated.Role.ADMIN;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private static final String AUTH_ENDPOINTS = "/api/v1/auth/**";
-    private static final String SWAGGER_CONFIG_ENDPOINTS = "/v3/api-docs/**";
-    private static final String SWAGGER_ENDPOINTS = "/swagger-ui/**";
+    private static final String AUTH_ENDPOINT = "/api/v1/auth/**";
 
     private static final String[] WHITE_LIST_URL = {
-            AUTH_ENDPOINTS,
-            SWAGGER_CONFIG_ENDPOINTS,
-            SWAGGER_ENDPOINTS
+            AUTH_ENDPOINT,
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
