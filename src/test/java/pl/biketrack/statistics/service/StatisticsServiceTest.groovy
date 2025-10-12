@@ -56,23 +56,23 @@ class StatisticsServiceTest extends Specification {
         def result = statisticsService.getStatistics()
 
         then:
-        result.summary.totalBikes == 3
-        result.summary.totalRepairs == 4
-        result.summary.totalRepairCost.amount == new BigDecimal("254.99")
-        result.summary.totalRepairCost.currency == PLN
+        result.summary().totalBikes() == 3
+        result.summary().totalRepairs() == 4
+        result.summary().totalRepairCost().amount() == new BigDecimal("254.99")
+        result.summary().totalRepairCost().currency() == PLN
 
-        result.repairsPerBike*.bikeName == ["Bike1", "Bike2"]
-        result.repairsPerBike*.repairs == [2L, 1L]
-        result.averageRepairCostPerBike.first().averageCost == 75.0
+        result.repairsPerBike()*.bikeName == ["Bike1", "Bike2"]
+        result.repairsPerBike()*.repairs == [2L, 1L]
+        result.averageRepairCostPerBike().first().averageCost == 75.0
 
-        result.repairsThisYearPerMonth.size() == 12
-        result.repairsThisYearPerMonth[0].month == "Styczeń"
-        result.repairsThisYearPerMonth[1].month == "Luty"
-        result.repairsThisYearPerMonth[11].month == "Grudzień"
-        result.repairsThisYearPerMonth[0].repairs == 0
-        result.repairsThisYearPerMonth[1].repairs == 5
-        result.repairsThisYearPerMonth[2].repairs == 2
-        result.repairsThisYearPerMonth[11].repairs == 0
+        result.repairsThisYearPerMonth().size() == 12
+        result.repairsThisYearPerMonth()[0].month() == "Styczeń"
+        result.repairsThisYearPerMonth()[1].month() == "Luty"
+        result.repairsThisYearPerMonth()[11].month() == "Grudzień"
+        result.repairsThisYearPerMonth()[0].repairs() == 0
+        result.repairsThisYearPerMonth()[1].repairs() == 5
+        result.repairsThisYearPerMonth()[2].repairs() == 2
+        result.repairsThisYearPerMonth()[11].repairs() == 0
     }
 
     def "should handle empty repositories gracefully"() {
@@ -87,13 +87,13 @@ class StatisticsServiceTest extends Specification {
         def result = statisticsService.getStatistics()
 
         then:
-        result.summary.totalBikes == 0
-        result.summary.totalRepairs == 0
-        result.summary.totalRepairCost.amount == 0
-        result.repairsPerBike.empty
-        result.averageRepairCostPerBike.empty
-        result.repairsThisYearPerMonth.size() == 12
-        result.repairsThisYearPerMonth.every { it.repairs == 0 }
+        result.summary().totalBikes() == 0
+        result.summary().totalRepairs() == 0
+        result.summary().totalRepairCost().amount() == 0
+        result.repairsPerBike().empty
+        result.averageRepairCostPerBike().empty
+        result.repairsThisYearPerMonth().size() == 12
+        result.repairsThisYearPerMonth().every { it.repairs() == 0 }
     }
 
     def "should default repairs cost currency to PLN when none found"() {
@@ -110,7 +110,7 @@ class StatisticsServiceTest extends Specification {
         def result = statisticsService.getStatistics()
 
         then:
-        result.summary.totalRepairCost.currency == null
+        result.summary().totalRepairCost().currency() == null
     }
 
     def "should build months even if month numbers are out of range"() {
@@ -128,7 +128,7 @@ class StatisticsServiceTest extends Specification {
         def result = statisticsService.getStatistics()
 
         then:
-        result.repairsThisYearPerMonth.size() == 12
-        result.repairsThisYearPerMonth.every { it.repairs >= 0 }
+        result.repairsThisYearPerMonth().size() == 12
+        result.repairsThisYearPerMonth().every { it.repairs() >= 0 }
     }
 }
