@@ -3,7 +3,7 @@ server:
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     open-in-view: false
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -12,8 +12,6 @@ spring:
     password: postgres
   flyway:
     enabled: true
-    baseline-on-migrate: true
-    table: flyway_schema_history
   servlet:
     multipart:
       max-file-size: 100MB
