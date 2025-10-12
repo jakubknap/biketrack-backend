@@ -1,6 +1,5 @@
 package pl.biketrack.statistics.service
 
-
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import pl.biketrack.bike.repository.BikeRepository
