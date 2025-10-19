@@ -7,30 +7,12 @@ spring:
     open-in-view: false
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/biketrack
-    username: postgres
-    password: postgres
   flyway:
     enabled: true
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 1000MB
-  mail:
-    host: localhost
-    port: 1025
-    username: mail-dev
-    password: mail-dev
-    properties:
-      mail:
-        smtp:
-          trust: "*"
-        auth: true
-        starttls:
-          enabled: true
-        connectiontimeout: 5000
-        timeout: 3000
-        writetimeout: 5000
   banner:
     location: banner/banner.txt
   application:
@@ -50,7 +32,6 @@ application:
     sender-mail: no-reply@biketrack.pl
     sender-name: BikeTrack
   frontend:
-    base-url: http://localhost:4200
     activation-account-url: ${application.frontend.base-url}/active-account
     reset-password-url: ${application.frontend.base-url}/reset-password
   file:

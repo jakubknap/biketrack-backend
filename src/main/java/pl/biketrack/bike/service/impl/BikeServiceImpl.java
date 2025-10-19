@@ -196,7 +196,7 @@ public class BikeServiceImpl implements BikeService {
 
         byte[] pdf = pdfConverter.generatePdf("bike-report", prepareVariables(bike, fileStorageService));
 
-        final String fileName = "Raport roweru - " + bike.getName() + ".pdf";
+        final String fileName = "Raport roweru.pdf";
 
         return ResponseEntity.ok()
                              .header(CONTENT_DISPOSITION, "inline; filename=" + fileName)
