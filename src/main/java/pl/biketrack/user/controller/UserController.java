@@ -1,15 +1,19 @@
 package pl.biketrack.user.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import pl.biketrack.exception.dto.response.BaseResponse;
+import pl.biketrack.openApi.user.ApiChangePasswordResponse;
+import pl.biketrack.openApi.user.ApiGetUserUserDetailsResponse;
+import pl.biketrack.openApi.user.ApiUpdateUserResponse;
 import pl.biketrack.user.dto.request.ChangePasswordRequest;
 import pl.biketrack.user.dto.request.UpdateUserRequest;
 import pl.biketrack.user.dto.response.UserDetailsResponse;
@@ -26,44 +30,20 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(
-            summary = "Pobierz dane zalogowanego użytkownika",
-            description = "Zwraca szczegóły aktualnie zalogowanego użytkownika",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "OK",
-                            content = @Content(schema = @Schema(implementation = UserDetailsResponse.class))),
-                    @ApiResponse(responseCode = "401", description = "Brak autoryzacji")
-            }
-    )
     @GetMapping
+    @ApiGetUserUserDetailsResponse
     public UserDetailsResponse getUserDetails() {
         return userService.getUserDetails();
     }
 
-    @Operation(
-            summary = "Aktualizuj dane użytkownika",
-            description = "Pozwala zaktualizować nick lub email zalogowanego użytkownika",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "OK",
-                            content = @Content(schema = @Schema(implementation = BaseResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Niepoprawne dane")
-            }
-    )
     @PutMapping
+    @ApiUpdateUserResponse
     public BaseResponse updateUser(@RequestBody @Valid UpdateUserRequest request) {
         return userService.updateUser(request);
     }
 
-    @Operation(
-            summary = "Zmień hasło użytkownika",
-            description = "Pozwala zalogowanemu użytkownikowi zmienić hasło",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "OK",
-                            content = @Content(schema = @Schema(implementation = BaseResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Niepoprawne dane")
-            }
-    )
     @PatchMapping("/change-password")
+    @ApiChangePasswordResponse
     public BaseResponse changePassword(@RequestBody @Valid ChangePasswordRequest request) {
         return userService.changePassword(request);
     }
