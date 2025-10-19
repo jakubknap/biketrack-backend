@@ -1,5 +1,7 @@
 package pl.biketrack.bike.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,14 @@ import pl.biketrack.bike.dto.response.BikeSelectListResponse;
 import pl.biketrack.bike.service.BikeService;
 import pl.biketrack.common.dto.PageResponse;
 import pl.biketrack.exception.dto.response.BaseResponse;
+import pl.biketrack.openApi.bike.ApiAddBikeResponse;
+import pl.biketrack.openApi.bike.ApiDeleteBikeResponse;
+import pl.biketrack.openApi.bike.ApiGetBikeDetailsResponse;
+import pl.biketrack.openApi.bike.ApiGetBikeListResponse;
+import pl.biketrack.openApi.bike.ApiGetBikeRepairsResponse;
+import pl.biketrack.openApi.bike.ApiGetBikeReportResponse;
+import pl.biketrack.openApi.bike.ApiGetBikeStatisticsResponse;
+import pl.biketrack.openApi.bike.ApiUpdateBikeResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,54 +46,64 @@ import static pl.biketrack.common.constant.Urls.BIKES_URL;
 @RestController
 @RequestMapping(BIKES_URL)
 @RequiredArgsConstructor
+@Tag(name = "Rowery", description = "Zarządzanie rowerami użytkowników")
 public class BikeController {
 
     private final BikeService bikeService;
 
     @GetMapping
+    @ApiGetBikeListResponse
     public PageResponse<BikeListResponse> getBikeList(@PageableDefault(size = 2, sort = "createdDate", direction = DESC) Pageable pageable) {
         return bikeService.getBikeList(pageable);
     }
 
     @GetMapping("/select-list")
+    @Hidden
     public List<BikeSelectListResponse> getUserBikes() {
         return bikeService.getUserBikes();
     }
 
     @PostMapping
+    @ApiAddBikeResponse
     public BaseResponse createBike(@RequestPart("bikeData") @Valid CreateBikeRequest request,
                                    @RequestPart(value = "bikePhoto", required = false) MultipartFile bikePhoto) {
         return bikeService.createBike(request, bikePhoto);
     }
 
     @GetMapping("/{bikeUuid}")
+    @ApiGetBikeDetailsResponse
     public BikeDetailsResponse getBike(@PathVariable UUID bikeUuid) {
         return bikeService.getBike(bikeUuid);
     }
 
     @GetMapping("/{bikeUuid}/repairs")
+    @ApiGetBikeRepairsResponse
     public PageResponse<BikeRepairResponse> getBikeRepairs(@PathVariable UUID bikeUuid,
                                                            @PageableDefault(size = 2, sort = "createdDate", direction = DESC) Pageable pageable) {
         return bikeService.getBikeRepairs(bikeUuid, pageable);
     }
 
     @GetMapping("/{bikeUuid}/statistics")
+    @ApiGetBikeStatisticsResponse
     public BikeRepairStatisticsResponse getBikeStatistics(@PathVariable UUID bikeUuid) {
         return bikeService.getBikeStatistics(bikeUuid);
     }
 
     @PutMapping
+    @ApiUpdateBikeResponse
     public BaseResponse updateBike(@RequestPart("bikeData") @Valid UpdateBikeRequest request,
                                    @RequestPart(value = "bikePhoto", required = false) MultipartFile bikePhoto) {
         return bikeService.updateBike(request, bikePhoto);
     }
 
     @DeleteMapping("/{bikeUuid}")
+    @ApiDeleteBikeResponse
     public BaseResponse deleteBike(@PathVariable UUID bikeUuid) {
         return bikeService.deleteBike(bikeUuid);
     }
 
     @GetMapping("/{bikeUuid}/report")
+    @ApiGetBikeReportResponse
     public ResponseEntity<byte[]> generateBikeReport(@PathVariable UUID bikeUuid) {
         return bikeService.generateBikeReport(bikeUuid);
     }
