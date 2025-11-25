@@ -17,6 +17,8 @@ spring:
     location: banner/banner.txt
   application:
     name: biketrack
+  profiles:
+    active: local
 
 application:
   security:
